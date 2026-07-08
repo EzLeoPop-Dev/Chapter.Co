@@ -639,8 +639,6 @@
 
 ## Use Case Diagram
 
-แผนภาพแสดงความสัมพันธ์ระหว่างผู้ใช้งาน (Actor) และฟังก์ชันการทำงาน (Use Case) ต่าง ๆ ของระบบ Chapter.Co
-
 ```mermaid
 flowchart LR
     %% จัดกลุ่ม Actors ให้อยู่ด้านซ้ายในระนาบเดียวกัน
@@ -827,4 +825,274 @@ sequenceDiagram
     Order-->>UI: Order Complete
     UI-->>Customer: Show order success
     end
+```
+
+## Class Diagram
+
+```mermaid
+classDiagram
+    %% ============ Users ============
+    class User {
+        +int userId
+        +String username
+        +String password
+        +String email
+        +register()
+        +login()
+        +logout()
+    }
+
+    class Customer {
+        +String address
+        +String phone
+        +manageProfile()
+        +searchBooks()
+        +readSample()
+        +addToWishlist()
+        +downloadEBook()
+        +contactSupport()
+    }
+
+    class Staff {
+        +String department
+        +verifyPayment()
+        +updateOrderStatus()
+        +updateInventory()
+        +printShippingLabel()
+        +uploadEBook()
+        +manageCustomerRequests()
+        +monitorAutomation()
+    }
+
+    class Administrator {
+        +manageBooks()
+        +manageCategories()
+        +manageAllOrders()
+        +managePromotions()
+        +manageCoupons()
+        +manageBanners()
+        +manageStaff()
+        +configureAutomation()
+        +monitorAutomation()
+        +viewDashboard()
+    }
+
+    User <|-- Customer
+    User <|-- Staff
+    User <|-- Administrator
+
+    %% ============ Books ============
+    class Book {
+        +int bookId
+        +String title
+        +String author
+        +String isbn
+        +float price
+        +String description
+        +String previewContent
+        +getDetails()
+        +getSample()
+    }
+
+    class PhysicalBook {
+        +float weight
+    }
+
+    class EBook {
+        +String fileUrl
+        +String format
+        +float fileSize
+        +downloadFile()
+    }
+
+    Book <|-- PhysicalBook
+    Book <|-- EBook
+
+    class Category {
+        +int categoryId
+        +String name
+        +String description
+        +getBooks()
+    }
+
+    %% ============ Search ============
+    class SearchService {
+        +searchByKeyword(keyword)
+        +searchByCategory(categoryId)
+        +filterByPrice(min, max)
+        +getRecommendations()
+    }
+
+    Customer ..> SearchService : uses
+    SearchService ..> Book : queries
+
+    %% ============ Inventory ============
+    class Inventory {
+        +int inventoryId
+        +int quantityOnHand
+        +int reorderLevel
+        +String warehouseLocation
+        +checkStock()
+        +adjustStock()
+    }
+
+    PhysicalBook "1" --> "1" Inventory : trackedBy
+    Staff "1" --> "0..*" Inventory : checksAndUpdates
+
+    %% ============ Cart / Wishlist / EBook Library ============
+    class Wishlist {
+        +int wishlistId
+        +addBook()
+        +removeBook()
+    }
+
+    class Cart {
+        +int cartId
+        +float totalAmount
+        +clearCart()
+    }
+
+    class CartItem {
+        +int cartItemId
+        +int quantity
+        +updateQuantity()
+    }
+
+    class EBookLibrary {
+        +int libraryId
+        +addToLibrary()
+        +getOwnedBooks()
+    }
+
+    Customer "1" --> "1" Cart : owns
+    Cart "1" *-- "0..*" CartItem : contains
+    CartItem "0..*" --> "1" Book : refersTo
+
+    Customer "1" --> "1" Wishlist : owns
+    Wishlist "1" o-- "0..*" Book : includes
+
+    Customer "1" --> "1" EBookLibrary : owns
+    EBookLibrary "1" o-- "0..*" EBook : contains
+
+    %% ============ Order / Payment / Shipping ============
+    class Order {
+        +int orderId
+        +Date orderDate
+        +float totalAmount
+        +String status
+        +calculateTotal()
+        +updateStatus()
+    }
+
+    class OrderDetail {
+        +int orderDetailId
+        +int quantity
+        +float unitPrice
+        +getSubtotal()
+    }
+
+    class Payment {
+        +int paymentId
+        +Date paymentDate
+        +float amount
+        +String method
+        +String status
+        +processPayment()
+    }
+
+    class Shipping {
+        +int shippingId
+        +String trackingNumber
+        +String carrier
+        +Date shippedDate
+        +String status
+        +generateTracking()
+        +updateShippingStatus()
+    }
+
+    Customer "1" --> "0..*" Order : places
+    Order "1" *-- "1..*" OrderDetail : contains
+    OrderDetail "0..*" --> "1" Book : refersTo
+    Order "1" --> "1" Payment : has
+    Order "1" --> "0..1" Shipping : generates
+    Staff "1" --> "0..*" Order : processes
+    Staff "1" --> "0..*" Shipping : manages
+    Administrator "1" --> "0..*" Order : manages
+
+    %% ============ Review ============
+    class Review {
+        +int reviewId
+        +int rating
+        +String comment
+        +Date reviewDate
+        +submitReview()
+    }
+
+    Customer "1" --> "0..*" Review : writes
+    Book "1" --> "0..*" Review : receives
+    Category "0..*" --> "0..*" Book : categorizes
+
+    %% ============ Promotion / Coupon ============
+    class Promotion {
+        +int promotionId
+        +String name
+        +String description
+        +float discountValue
+        +Date startDate
+        +Date endDate
+        +boolean isActive
+        +applyPromotion()
+    }
+
+    class Coupon {
+        +int couponId
+        +String code
+        +float discountValue
+        +Date validUntil
+        +int usageLimit
+        +boolean isActive
+        +applyDiscount()
+    }
+
+    Order "0..*" --> "0..1" Coupon : uses
+    Promotion "0..*" --> "0..*" Book : promotes
+
+    %% ============ Support ============
+    class SupportTicket {
+        +int ticketId
+        +String issueType
+        +String message
+        +String status
+        +createTicket()
+        +resolveTicket()
+    }
+
+    Customer "1" --> "0..*" SupportTicket : creates
+    Staff "1" --> "0..*" SupportTicket : handles
+
+    %% ============ Automation / Notification ============
+    class AutomationLog {
+        +int logId
+        +String taskType
+        +Date executedAt
+        +String status
+        +String details
+        +executeTask()
+        +logResult()
+    }
+
+    class Notification {
+        +int notificationId
+        +String channel
+        +String message
+        +Date sentDate
+        +String status
+        +sendNotification()
+    }
+
+    Order "1" --> "0..*" AutomationLog : triggers
+    Staff "1" --> "0..*" AutomationLog : monitors
+    Administrator "1" --> "0..*" AutomationLog : configures
+    AutomationLog "1" --> "0..*" Notification : generates
+    Customer "1" --> "0..*" Notification : receives
 ```
