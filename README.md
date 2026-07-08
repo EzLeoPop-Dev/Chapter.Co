@@ -701,3 +701,130 @@ flowchart LR
     Admin --- UC_Admin_Report
     Admin --- UC_Admin_Config
 ```
+
+## Sequence Diagram
+
+```mermaid
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "actorTextColor": "#1a1a2e",
+    "actorBkg": "#e0e7ff",
+    "actorBorder": "#4338ca",
+    "signalTextColor": "#1a1a2e",
+    "signalColor": "#374151",
+    "noteTextColor": "#1a1a2e",
+    "noteBkgColor": "#fef3c7",
+    "noteBorderColor": "#d97706",
+    "labelTextColor": "#1a1a2e",
+    "loopTextColor": "#1a1a2e",
+    "activationBorderColor": "#4338ca",
+    "sequenceNumberColor": "#1a1a2e"
+  }
+}}%%
+sequenceDiagram
+    actor Customer
+    participant UI as Web Application
+    participant Auth as Authentication Service
+    participant Book as Book Service
+    participant Cart as Cart Service
+    participant Order as Order Service
+    participant Payment as Payment Service
+    participant Inventory as Inventory Service
+    participant Shipping as Shipping Service
+    participant Notify as Notification Service
+    participant EBook as EBook Service
+    participant Database as Database
+
+    rect rgb(199, 210, 254)
+    note over Customer,Database: Login
+    Customer->>UI: Open Login Page
+    UI->>Auth: login(email,password)
+    Auth->>Database: Check user credentials
+    Database-->>Auth: User Found
+    Auth-->>UI: Login Success
+    UI-->>Customer: Show Home Page
+    end
+
+    rect rgb(187, 247, 208)
+    note over Customer,Database: Search Book
+    Customer->>UI: Search for a book
+    UI->>Book: search(keyword)
+    Book->>Database: Query Books
+    Database-->>Book: Book List
+    Book-->>UI: Show book list
+    end
+
+    rect rgb(216, 180, 254)
+    note over Customer,Database: View Detail
+    Customer->>UI: Select a book
+    UI->>Book: getBookDetail(bookId)
+    Book->>Database: Query Detail
+    Database-->>Book: Book Detail
+    Book-->>UI: Show details
+    end
+
+    rect rgb(254, 202, 154)
+    note over Customer,Database: Preview Sample
+    Customer->>UI: Preview book
+    UI->>Book: getPreview()
+    Book->>Database: Read Sample
+    Database-->>Book: Sample File
+    Book-->>UI: Display Sample
+    end
+
+    rect rgb(165, 243, 252)
+    note over Customer,Database: Add Cart
+    Customer->>UI: Add to cart
+    UI->>Cart: addItem(book)
+    Cart->>Database: Save Cart
+    Database-->>Cart: Success
+    Cart-->>UI: Cart Updated
+    end
+
+    rect rgb(216, 180, 254)
+    note over Customer,Database: Checkout
+    Customer->>UI: Checkout
+    UI->>Order: createOrder()
+    Order->>Database: Save Order
+    Database-->>Order: Order ID
+    end
+
+    rect rgb(249, 168, 212)
+    note over Customer,Database: Payment
+    Order->>Payment: Request Payment
+    Payment-->>Customer: Show payment options
+    Customer->>Payment: Confirm payment
+    Payment-->>Order: Payment Success
+    end
+
+    rect rgb(187, 247, 208)
+    note over Customer,Database: Automation
+    Order->>Database: Update Status = Paid
+    Order->>Inventory: Reduce Stock
+    Inventory->>Database: Update Inventory
+    Database-->>Inventory: Success
+
+    alt Physical Book
+        Order->>Shipping: Generate Tracking
+        Shipping->>Database: Save Tracking
+        Database-->>Shipping: Success
+        Shipping-->>Order: Tracking Number
+        Order->>Notify: Send Email / LINE
+        Notify-->>Customer: Notify tracking number
+    else E-Book
+        Order->>EBook: Grant Access
+        EBook->>Database: Update Library
+        Database-->>EBook: Success
+        EBook-->>Customer: Download / Read E-Book
+    end
+    end
+
+    rect rgb(254, 205, 211)
+    note over Customer,Database: Complete
+    Order->>Database: Save Completed Order
+    Database-->>Order: Success
+    Order-->>UI: Order Complete
+    UI-->>Customer: Show order success
+    end
+```
