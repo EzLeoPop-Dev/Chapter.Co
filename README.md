@@ -633,3 +633,71 @@
 2. ผู้ใช้งานได้รับประสบการณ์การใช้งาน (User Experience) ที่ดียิ่งขึ้น ผ่านหน้าจอที่ออกแบบมาให้ค้นหาง่ายและสบายตา
 3. ฟีเจอร์ทดลองอ่านช่วยสร้างความมั่นใจให้ผู้ซื้อก่อนการตัดสินใจ ซึ่งช่วยเพิ่มโอกาสและยอดขายให้กับแพลตฟอร์ม
 4. มีระบบบริหารจัดการข้อมูลสินค้าและสต็อกหลังบ้านที่มีประสิทธิภาพสำหรับผู้ดูแลระบบ
+
+
+# Diagram
+
+## Use Case Diagram
+
+แผนภาพแสดงความสัมพันธ์ระหว่างผู้ใช้งาน (Actor) และฟังก์ชันการทำงาน (Use Case) ต่าง ๆ ของระบบ Chapter.Co
+
+```mermaid
+flowchart LR
+    %% จัดกลุ่ม Actors ให้อยู่ด้านซ้ายในระนาบเดียวกัน
+    Cust["👤 Customer"]
+    Staff["👤 Staff"]
+    Admin["👤 Administrator"]
+    %% ความสัมพันธ์สืบทอดสิทธิ์ (Admin ทำหน้าที่แทน Staff ได้)
+    Admin -. "<<inherits>>" .-> Staff
+    subgraph "Chapter.Co System"
+        
+        %% Customer Use Cases
+        UC_Auth(["Register / Login"])
+        UC_Profile(["Manage Profile & Address"])
+        UC_Search(["Search & View Books"])
+        UC_Preview(["Preview E-book Sample"])
+        UC_Cart(["Manage Cart / Wishlist"])
+        UC_Order(["Place Order"])
+        UC_Pay(["Make Payment"])
+        UC_Track(["Track Order"])
+        UC_Read(["Read/Download E-book"])
+        UC_Review(["Review & Rate"])
+        UC_Support(["Contact Support"])
+        %% Staff Use Cases
+        UC_Staff_Order(["Manage Orders & Shipping"])
+        UC_Staff_Pay(["Verify Payment (Manual)"])
+        UC_Staff_Inv(["Manage Inventory & E-book"])
+        UC_Staff_Support(["Provide Customer Support"])
+        
+        %% Admin Use Cases
+        UC_Admin_Prod(["Manage Products & Categories"])
+        UC_Admin_Users(["Manage Staff & Roles"])
+        UC_Admin_Promo(["Manage Promos & Banners"])
+        UC_Admin_Report(["View Dashboard & Reports"])
+        UC_Admin_Config(["Configure Automation System"])
+    end
+    %% เส้นความสัมพันธ์ของ Customer
+    Cust --- UC_Auth
+    Cust --- UC_Profile
+    Cust --- UC_Search
+    UC_Search -. "<<'extend'>>" .-> UC_Preview
+    Cust --- UC_Cart
+    Cust --- UC_Order
+    Cust --- UC_Pay
+    Cust --- UC_Track
+    Cust --- UC_Read
+    Cust --- UC_Review
+    Cust --- UC_Support
+    %% เส้นความสัมพันธ์ของ Staff
+    Staff --- UC_Auth
+    Staff --- UC_Staff_Order
+    Staff --- UC_Staff_Pay
+    Staff --- UC_Staff_Inv
+    Staff --- UC_Staff_Support
+    %% เส้นความสัมพันธ์ของ Admin
+    Admin --- UC_Admin_Prod
+    Admin --- UC_Admin_Users
+    Admin --- UC_Admin_Promo
+    Admin --- UC_Admin_Report
+    Admin --- UC_Admin_Config
+```
