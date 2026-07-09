@@ -1,0 +1,88 @@
+"use client";
+import React, { useState } from 'react';
+import Link from 'next/link';
+import Navbar from '../../components/Navbar';
+import { books } from '../../data/books';
+
+export default function WishlistPage() {
+  const [wishlist, setWishlist] = useState([books[1], books[3], books[7]]);
+
+  return (
+    <div className="min-h-screen bg-[#f7f7f4] text-[#26251e] font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif] relative selection:bg-[#f54e00] selection:text-white p-4 md:p-8 flex flex-col">
+      <div className="fixed top-[-10%] left-[-10%] w-96 h-96 bg-orange-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob pointer-events-none z-0"></div>
+      <div className="fixed bottom-[-10%] right-[-5%] w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob animation-delay-2000 pointer-events-none z-0"></div>
+
+      <div className="max-w-7xl mx-auto w-full relative z-10 flex flex-col flex-1">
+        <Navbar />
+
+        <div className="flex flex-col md:flex-row gap-8 mt-8">
+          
+          {/* Sidebar Menu */}
+          <aside className="w-full md:w-64 flex-shrink-0">
+            <div className="bg-white/70 backdrop-blur-xl border border-white/80 rounded-[2rem] shadow-sm p-4 sticky top-8">
+              <div className="flex flex-col items-center p-6 border-b border-[#e6e5e0] mb-4">
+                <div className="w-20 h-20 bg-gradient-to-tr from-orange-400 to-amber-500 rounded-full text-white flex items-center justify-center text-3xl font-black mb-4 shadow-md">
+                  S
+                </div>
+                <h3 className="font-bold text-lg text-center">สมชาย รักการอ่าน</h3>
+                <p className="text-sm text-[#a09c92]">somchai@example.com</p>
+              </div>
+              <ul className="space-y-2 font-bold text-sm">
+                <li><Link href="/profile" className="block px-4 py-3 rounded-xl text-[#5a5852] hover:bg-white transition-colors">ข้อมูลส่วนตัว</Link></li>
+                <li><Link href="/orders" className="block px-4 py-3 rounded-xl text-[#5a5852] hover:bg-white transition-colors">ประวัติการสั่งซื้อ</Link></li>
+                <li><Link href="/wishlist" className="block px-4 py-3 rounded-xl bg-orange-50 text-orange-600 transition-colors">หนังสือที่อยากได้</Link></li>
+                <li><Link href="/library" className="block px-4 py-3 rounded-xl text-[#5a5852] hover:bg-white transition-colors">คลัง E-book ของฉัน</Link></li>
+                <li className="pt-4 mt-4 border-t border-[#e6e5e0]"><Link href="/login" className="block w-full text-left px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-colors">ออกจากระบบ</Link></li>
+              </ul>
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <div className="flex-1">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-black text-[#26251e]">หนังสือที่อยากได้</h2>
+              <span className="bg-white px-4 py-1.5 rounded-full border border-[#e6e5e0] font-bold text-orange-500 shadow-sm">{wishlist.length} รายการ</span>
+            </div>
+
+            {wishlist.length === 0 ? (
+              <div className="bg-white/70 backdrop-blur-xl border border-white/80 rounded-[2.5rem] p-12 text-center flex flex-col items-center shadow-sm">
+                <div className="w-24 h-24 bg-[#f7f7f4] rounded-full flex items-center justify-center mb-6">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d0cdc5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                </div>
+                <h3 className="text-xl font-bold text-[#26251e] mb-2">ยังไม่มีหนังสือที่อยากได้</h3>
+                <p className="text-[#a09c92] mb-8">ไปค้นหาหนังสือที่ถูกใจแล้วกดรูปหัวใจเลย</p>
+                <Link href="/shop" className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full transition-colors">ไปเลือกร้านค้า</Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {wishlist.map((book) => (
+                  <div key={book.id} className="bg-white/60 backdrop-blur-sm border border-white/80 rounded-3xl p-5 hover:bg-white hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group flex flex-col h-full relative">
+                    <button className="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md z-20 text-[#f54e00] hover:scale-110 transition-transform">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#f54e00" stroke="#f54e00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    </button>
+                    
+                    <div className="relative h-64 mb-5 rounded-2xl overflow-hidden shadow-md flex-shrink-0">
+                      <img src={book.image} alt={book.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    </div>
+                    <div className="flex-1 flex flex-col justify-between">
+                      <div>
+                        <h3 className="font-bold text-[16px] text-[#26251e] leading-tight mb-1 group-hover:text-[#f54e00] transition-colors line-clamp-2">{book.title}</h3>
+                        <p className="text-[#5a5852] text-[13px] font-medium">{book.author}</p>
+                      </div>
+                      <div className="mt-4 pt-4 border-t border-[#e6e5e0] flex items-center justify-between">
+                        <span className="text-lg font-bold text-[#f54e00]">${book.price.toFixed(2)}</span>
+                        <button className="text-sm font-bold bg-orange-100 text-orange-600 hover:bg-orange-500 hover:text-white px-3 py-1.5 rounded-lg transition-colors">
+                          ใส่ตะกร้า
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

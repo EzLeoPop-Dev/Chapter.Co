@@ -1,0 +1,94 @@
+"use client";
+import React, { useState, useRef, useEffect } from 'react';
+
+export default function MultiSelectDropdown({ options, selectedValues, onChange, placeholder, label }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const toggleOption = (opt) => {
+    if (opt === 'All') {
+      onChange([]);
+    } else {
+      if (selectedValues.includes(opt)) {
+        onChange(selectedValues.filter(v => v !== opt));
+      } else {
+        onChange([...selectedValues, opt]);
+      }
+    }
+  };
+
+  const getDisplayText = () => {
+    if (selectedValues.length === 0) return placeholder;
+    if (selectedValues.length === 1) return selectedValues[0];
+    return `เลือกแล้ว ${selectedValues.length} รายการ`;
+  };
+
+  const isSelected = (opt) => {
+    if (opt === 'All') return selectedValues.length === 0;
+    return selectedValues.includes(opt);
+  };
+
+  return (
+    <div className="relative w-full" ref={dropdownRef}>
+      {label && <h3 className="text-[13px] font-bold text-[#a09c92] uppercase tracking-wider mb-2 px-2">{label}</h3>}
+      
+      <button 
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-5 py-3.5 bg-white/80 backdrop-blur-md border border-white rounded-2xl flex justify-between items-center text-[#5a5852] font-medium shadow-sm hover:bg-white hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-300 group"
+      >
+        <span className={selectedValues.length === 0 ? 'text-[#a09c92]' : 'text-[#f54e00] font-bold'}>
+          {getDisplayText()}
+        </span>
+        <svg 
+          width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" 
+          className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-orange-500' : 'text-[#a09c92] group-hover:text-orange-400'}`}
+        >
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+
+      <div className={`absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-xl border border-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300 origin-top ${isOpen ? 'opacity-100 scale-y-100 translate-y-0' : 'opacity-0 scale-y-95 -translate-y-2 pointer-events-none'}`}>
+        <div className="max-h-60 overflow-y-auto scrollbar-hide p-2" style={{ scrollbarWidth: 'none' }}>
+          {options.map((opt) => {
+            const selected = isSelected(opt);
+            return (
+              <button
+                key={opt}
+                onClick={() => toggleOption(opt)}
+                className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 font-medium flex items-center ${
+                  selected && opt === 'All'
+                  ? 'bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-md'
+                  : selected
+                    ? 'bg-orange-50 text-[#f54e00]' 
+                    : 'text-[#5a5852] hover:bg-orange-50/50 hover:text-[#f54e00]'
+                }`}
+              >
+                <div className={`w-5 h-5 rounded-[6px] mr-3 flex items-center justify-center border-2 transition-colors ${
+                  selected 
+                  ? (opt === 'All' ? 'bg-white border-white' : 'bg-orange-500 border-orange-500') 
+                  : 'border-[#d0cdc5] bg-white'
+                }`}>
+                  {selected && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={opt === 'All' ? '#f54e00' : 'white'} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  )}
+                </div>
+                {opt === 'All' ? placeholder : opt}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
