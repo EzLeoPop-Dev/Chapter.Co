@@ -11,7 +11,7 @@ export default function StaffTicketsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-black text-[#26251e]">จัดการคำร้องเรียน (Tickets)</h2>
+        <h2 className="text-3xl font-black text-[#1A1A1A]">จัดการคำร้องเรียน (Tickets)</h2>
       </div>
 
       <div className="bg-white/70 backdrop-blur-xl rounded-[2.5rem] shadow-sm border border-white/80 overflow-hidden">
@@ -30,21 +30,21 @@ export default function StaffTicketsPage() {
             <tbody className="divide-y divide-[#e6e5e0]/50">
               {tickets.map((tk, idx) => (
                 <tr key={idx} className="hover:bg-white/80 transition-colors">
-                  <td className="p-5 font-bold text-[#26251e]">{tk.id}</td>
-                  <td className="p-5 text-[15px] font-bold text-[#26251e]">{tk.subject}</td>
-                  <td className="p-5 text-sm font-medium text-[#5a5852]">{tk.customer}</td>
+                  <td className="p-5 font-bold text-[#1A1A1A]">{tk.id}</td>
+                  <td className="p-5 text-[15px] font-bold text-[#1A1A1A]">{tk.subject}</td>
+                  <td className="p-5 text-sm font-medium text-[#1A1A1A]">{tk.customer}</td>
                   <td className="p-5 text-sm font-medium text-[#a09c92]">{tk.date}</td>
                   <td className="p-5 text-center">
                     <span className={`px-4 py-1.5 text-[11px] font-bold rounded-full uppercase tracking-wider border ${
                       tk.status === 'เปิด' ? 'bg-red-50 text-red-600 border-red-200' :
-                      tk.status === 'รอดำเนินการ' ? 'bg-orange-50 text-orange-600 border-orange-200' :
+                      tk.status === 'รอดำเนินการ' ? 'bg-orange-50 text-primary border-primary' :
                       'bg-white text-[#a09c92] border-[#e6e5e0]'
                     }`}>
                       {tk.status}
                     </span>
                   </td>
                   <td className="p-5 text-center">
-                     <button className="text-orange-500 hover:text-orange-700 text-sm font-bold transition-colors">ดูรายละเอียด</button>
+                     <button className="text-primary hover:text-primary text-sm font-bold transition-colors">ดูรายละเอียด</button>
                   </td>
                 </tr>
               ))}

@@ -6,16 +6,22 @@ import HeroSection from './components/home/HeroSection';
 import CategoryRow from './components/home/CategoryRow';
 import PromotionBanner from './components/home/PromotionBanner';
 import RecommendedWeekly from './components/home/RecommendedWeekly';
+import CuratedPicks from './components/home/CuratedPicks';
 import BestSellers from './components/home/BestSellers';
 import NewArrivals from './components/home/NewArrivals';
-import Footer from './components/shared/Footer';
 
 export default function ModernBookstorePage() {
   const bestSellers = [
-    { id: 1, title: 'ATOMIC\nHABITS', author: 'JAMES CLEAR', price: '15.99', rating: '5.0', reviews: '15k', theme: 'from-amber-500 to-orange-700', textTheme: 'text-amber-200' },
+    { id: 1, title: 'ATOMIC\nHABITS', author: 'JAMES CLEAR', price: '15.99', rating: '5.0', reviews: '15k', theme: 'from-primary to-orange-700', textTheme: 'text-amber-200' },
     { id: 2, title: 'SAPIENS', author: 'YUVAL NOAH', price: '28.50', rating: '4.9', reviews: '12k', theme: 'from-stone-600 to-stone-900', textTheme: 'text-stone-300' },
     { id: 3, title: 'THINKING\nFAST', author: 'D. KAHNEMAN', price: '22.00', rating: '4.8', reviews: '8.9k', theme: 'from-cyan-700 to-blue-900', textTheme: 'text-cyan-200' },
     { id: 4, title: 'MONEY\nPSYCH', author: 'M. HOUSEL', price: '18.99', rating: '4.9', reviews: '10k', theme: 'from-emerald-600 to-green-900', textTheme: 'text-emerald-200' },
+    { id: 5, title: 'DEEP\nWORK', author: 'CAL NEWPORT', price: '16.50', rating: '4.7', reviews: '7.5k', theme: 'from-blue-600 to-indigo-900', textTheme: 'text-blue-200' },
+    { id: 6, title: 'THE\nALCHEMIST', author: 'PAULO COELHO', price: '14.99', rating: '4.8', reviews: '20k', theme: 'from-yellow-600 to-amber-900', textTheme: 'text-yellow-200' },
+    { id: 7, title: '1984', author: 'GEORGE ORWELL', price: '12.99', rating: '4.9', reviews: '25k', theme: 'from-gray-700 to-gray-900', textTheme: 'text-gray-300' },
+    { id: 8, title: 'ESSENTIALISM', author: 'GREG MCKEOWN', price: '17.50', rating: '4.6', reviews: '5k', theme: 'from-teal-600 to-teal-900', textTheme: 'text-teal-200' },
+    { id: 9, title: 'START\nWITH WHY', author: 'SIMON SINEK', price: '19.99', rating: '4.7', reviews: '9k', theme: 'from-rose-600 to-rose-900', textTheme: 'text-rose-200' },
+    { id: 10, title: 'DA VINCI\nCODE', author: 'DAN BROWN', price: '13.50', rating: '4.5', reviews: '18k', theme: 'from-red-700 to-red-900', textTheme: 'text-red-200' },
   ];
 
   const newArrivals = [
@@ -26,11 +32,11 @@ export default function ModernBookstorePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f7f7f4] text-[#26251e] font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif] p-4 md:p-8 overflow-hidden relative selection:bg-[#f54e00] selection:text-white">
+    <div className="min-h-screen bg-[#F2EEE7] text-[#1A1A1A] font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif] p-4 md:p-8 overflow-hidden relative selection:bg-[#C8861A] selection:text-white">
 
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-orange-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob"></div>
       <div className="absolute top-[20%] right-[-5%] w-96 h-96 bg-amber-200 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob animation-delay-2000"></div>
-      <div className="absolute bottom-[-10%] left-[20%] w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob"></div>
+      <div className="absolute bottom-[-10%] left-[20%] w-96 h-96 bg-tertiary rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob"></div>
 
       <div className="max-w-7xl mx-auto relative z-10">
 
@@ -38,11 +44,11 @@ export default function ModernBookstorePage() {
 
         <HeroSection />
         <CategoryRow />
-        <PromotionBanner />
+        <CuratedPicks />
         <RecommendedWeekly />
+        <PromotionBanner />
         <BestSellers bestSellers={bestSellers} />
         <NewArrivals newArrivals={newArrivals} />
-        <Footer />
 
       </div>
     </div>

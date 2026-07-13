@@ -45,14 +45,14 @@ export default function MultiSelectDropdown({ options, selectedValues, onChange,
       <button 
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-5 py-3.5 bg-white/80 backdrop-blur-md border border-white rounded-2xl flex justify-between items-center text-[#5a5852] font-medium shadow-sm hover:bg-white hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-300 group"
+        className="w-full px-5 py-3.5 bg-white/80 backdrop-blur-md border border-white rounded-2xl flex justify-between items-center text-[#1A1A1A] font-medium shadow-sm hover:bg-white hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary group"
       >
-        <span className={selectedValues.length === 0 ? 'text-[#a09c92]' : 'text-[#f54e00] font-bold'}>
+        <span className={selectedValues.length === 0 ? 'text-[#a09c92]' : 'text-[#C8861A] font-bold'}>
           {getDisplayText()}
         </span>
         <svg 
           width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" 
-          className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-orange-500' : 'text-[#a09c92] group-hover:text-orange-400'}`}
+          className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-primary' : 'text-[#a09c92] group-hover:text-primary'}`}
         >
           <polyline points="6 9 12 15 18 9"></polyline>
         </svg>
@@ -68,19 +68,19 @@ export default function MultiSelectDropdown({ options, selectedValues, onChange,
                 onClick={() => toggleOption(opt)}
                 className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 font-medium flex items-center ${
                   selected && opt === 'All'
-                  ? 'bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-md'
+                  ? 'bg-gradient-to-r from-primary to-primary text-white shadow-md'
                   : selected
-                    ? 'bg-orange-50 text-[#f54e00]' 
-                    : 'text-[#5a5852] hover:bg-orange-50/50 hover:text-[#f54e00]'
+                    ? 'bg-orange-50 text-[#C8861A]' 
+                    : 'text-[#1A1A1A] hover:bg-orange-50/50 hover:text-[#C8861A]'
                 }`}
               >
                 <div className={`w-5 h-5 rounded-[6px] mr-3 flex items-center justify-center border-2 transition-colors ${
                   selected 
-                  ? (opt === 'All' ? 'bg-white border-white' : 'bg-orange-500 border-orange-500') 
+                  ? (opt === 'All' ? 'bg-white border-white' : 'bg-primary border-primary') 
                   : 'border-[#d0cdc5] bg-white'
                 }`}>
                   {selected && (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={opt === 'All' ? '#f54e00' : 'white'} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={opt === 'All' ? '#C8861A' : 'white'} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   )}
                 </div>
                 {opt === 'All' ? placeholder : opt}

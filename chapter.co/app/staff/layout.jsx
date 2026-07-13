@@ -18,16 +18,16 @@ export default function StaffLayout({ children }) {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f7f7f4] text-[#26251e] font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif] relative selection:bg-[#f54e00] selection:text-white flex overflow-hidden">
+    <div className="min-h-screen bg-[#F2EEE7] text-[#1A1A1A] font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif] relative selection:bg-[#C8861A] selection:text-white flex overflow-hidden">
       {/* Decorative Blobs */}
-      <div className="fixed top-[-10%] left-[-10%] w-96 h-96 bg-orange-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob pointer-events-none z-0"></div>
-      <div className="fixed bottom-[-10%] right-[-5%] w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob animation-delay-2000 pointer-events-none z-0"></div>
+      <div className="fixed top-[-10%] left-[-10%] w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob pointer-events-none z-0"></div>
+      <div className="fixed bottom-[-10%] right-[-5%] w-96 h-96 bg-tertiary rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob animation-delay-2000 pointer-events-none z-0"></div>
 
       {/* Floating Sidebar */}
       <aside className="w-64 h-[calc(100vh-2rem)] bg-white/70 backdrop-blur-xl border border-white/80 rounded-[2rem] shadow-sm flex flex-col fixed left-4 top-4 z-50">
         <div className="p-6 border-b border-[#e6e5e0] flex items-center justify-center flex-col relative">
-          <span className="text-2xl font-normal tracking-[-0.48px] bg-clip-text text-transparent bg-gradient-to-r from-[#26251e] to-[#5a5852] mb-1">Chapter.Co</span>
-          <span className="text-[10px] font-bold bg-orange-100 text-orange-600 px-2 py-0.5 rounded-md uppercase tracking-wider">Staff Space</span>
+          <span className="text-2xl font-normal tracking-[-0.48px] bg-clip-text text-transparent bg-gradient-to-r from-[#1A1A1A] to-[#1A1A1A] mb-1">Chapter.Co</span>
+          <span className="text-[10px] font-bold bg-primary text-white px-2 py-0.5 rounded-md uppercase tracking-wider">Staff Space</span>
         </div>
         
         <div className="flex-1 overflow-y-auto py-4 scrollbar-hide">
@@ -35,7 +35,7 @@ export default function StaffLayout({ children }) {
             {menuItems.map((item) => {
               const isActive = pathname === item.path || pathname.startsWith(item.path + '/');
               return (
-                <Link key={item.name} href={item.path} className={`flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all ${isActive ? 'bg-orange-500 text-white shadow-md hover:-translate-y-0.5' : 'text-[#5a5852] hover:bg-white hover:text-[#26251e] hover:shadow-sm'}`}>
+                <Link key={item.name} href={item.path} className={`flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all ${isActive ? 'bg-primary text-white shadow-md hover:-translate-y-0.5' : 'text-[#1A1A1A] hover:bg-white hover:text-[#1A1A1A] hover:shadow-sm'}`}>
                   <svg className={`w-5 h-5 mr-3 flex-shrink-0 ${isActive ? 'text-white' : 'text-[#a09c92]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
                   </svg>
@@ -48,11 +48,11 @@ export default function StaffLayout({ children }) {
 
         <div className="p-4 border-t border-[#e6e5e0]">
           <div className="flex items-center px-2 mb-4">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-400 to-amber-500 flex items-center justify-center text-white font-bold shadow-sm">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-primary flex items-center justify-center text-white font-bold shadow-sm">
               S
             </div>
             <div className="ml-3">
-              <p className="text-sm font-bold text-[#26251e]">คุณพนักงาน</p>
+              <p className="text-sm font-bold text-[#1A1A1A]">คุณพนักงาน</p>
               <p className="text-xs font-medium text-[#a09c92]">staff@chapter.co</p>
             </div>
           </div>
@@ -66,16 +66,16 @@ export default function StaffLayout({ children }) {
       <div className="flex-1 ml-[18rem] flex flex-col min-h-screen relative z-10 p-4">
         {/* Floating Topbar */}
         <header className="h-16 bg-white/70 backdrop-blur-xl border border-white/80 rounded-2xl flex items-center justify-between px-6 mb-6 shadow-sm sticky top-4 z-40">
-          <h1 className="text-lg font-bold text-[#26251e]">ระบบจัดการหลังร้าน (Staff Workspace)</h1>
+          <h1 className="text-lg font-bold text-[#1A1A1A]">ระบบจัดการหลังร้าน (Staff Workspace)</h1>
           <div className="flex items-center space-x-4">
-            <button className="relative p-2 text-[#a09c92] hover:text-[#f54e00] transition-colors rounded-full hover:bg-white">
+            <button className="relative p-2 text-[#a09c92] hover:text-[#C8861A] transition-colors rounded-full hover:bg-white">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
               <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
             </button>
             <div className="h-8 w-px bg-[#e6e5e0]"></div>
-            <Link href="/" className="text-sm font-bold text-[#f54e00] hover:text-orange-600 bg-orange-50 px-4 py-2 rounded-xl transition-colors">ไปที่หน้าร้าน</Link>
+            <Link href="/" className="text-sm font-bold text-[#C8861A] hover:text-primary bg-orange-50 px-4 py-2 rounded-xl transition-colors">ไปที่หน้าร้าน</Link>
           </div>
         </header>
 

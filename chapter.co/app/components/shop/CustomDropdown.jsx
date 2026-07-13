@@ -22,14 +22,14 @@ export default function CustomDropdown({ options, value, onChange, placeholder, 
       <button 
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-5 py-3.5 bg-white/80 backdrop-blur-md border border-white rounded-2xl flex justify-between items-center text-[#5a5852] font-medium shadow-sm hover:bg-white hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-300 group"
+        className="w-full px-5 py-3.5 bg-white/80 backdrop-blur-md border border-white rounded-2xl flex justify-between items-center text-[#1A1A1A] font-medium shadow-sm hover:bg-white hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary group"
       >
-        <span className={value === 'All' ? 'text-[#a09c92]' : 'text-[#f54e00] font-bold'}>
+        <span className={value === 'All' ? 'text-[#a09c92]' : 'text-[#C8861A] font-bold'}>
           {value === 'All' ? placeholder : value}
         </span>
         <svg 
           width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" 
-          className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-orange-500' : 'text-[#a09c92] group-hover:text-orange-400'}`}
+          className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-primary' : 'text-[#a09c92] group-hover:text-primary'}`}
         >
           <polyline points="6 9 12 15 18 9"></polyline>
         </svg>
@@ -43,8 +43,8 @@ export default function CustomDropdown({ options, value, onChange, placeholder, 
               onClick={() => { onChange(opt); setIsOpen(false); }}
               className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 font-medium flex items-center justify-between ${
                 value === opt 
-                ? 'bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-md' 
-                : 'text-[#5a5852] hover:bg-orange-50 hover:text-[#f54e00]'
+                ? 'bg-gradient-to-r from-primary to-primary text-white shadow-md' 
+                : 'text-[#1A1A1A] hover:bg-orange-50 hover:text-[#C8861A]'
               }`}
             >
               {opt === 'All' ? placeholder : opt}

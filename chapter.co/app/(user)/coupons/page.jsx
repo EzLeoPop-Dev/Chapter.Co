@@ -1,105 +1,340 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Navbar from '../../components/Navbar';
 
 export default function CouponsPage() {
-  const [activeTab, setActiveTab] = useState('all');
-
-  const tabs = [
-    { id: 'all', label: 'ทั้งหมด' },
-    { id: 'freeshipping', label: 'โค้ดส่งฟรี' },
-    { id: 'discount', label: 'ส่วนลดหนังสือ' },
-    { id: 'cashback', label: 'รับเงินคืน' },
-  ];
-
-  const coupons = [
-    { id: 1, type: 'freeshipping', title: 'ส่งฟรีไม่มีขั้นต่ำ', desc: 'สำหรับการสั่งซื้อครั้งแรก', label: 'FREE', sub: 'SHIPPING', color: 'blue', tag: 'ใช้ได้ 1 ครั้ง', expiry: 'หมดเขตสิ้นเดือน' },
-    { id: 2, type: 'discount', title: 'ส่วนลดหนังสือใหม่', desc: 'เมื่อซื้อขั้นต่ำ $40', label: '20%', sub: 'OFF', color: 'orange', tag: 'แนะนำ', expiry: 'หมดเขตพรุ่งนี้' },
-    { id: 3, type: 'cashback', title: 'รับเงินคืน 10%', desc: 'รับเป็น Coins คืนสูงสุด 500 Coins', label: '10%', sub: 'CASHBACK', color: 'emerald', tag: 'คุ้มสุด', expiry: 'เหลือ 2 วัน' },
-    { id: 4, type: 'discount', title: 'ส่วนลด 50 บาท', desc: 'เมื่อซื้อขั้นต่ำ $20', label: '$5', sub: 'OFF', color: 'purple', tag: 'ยอดนิยม', expiry: 'หมดเขตวันนี้' },
-    { id: 5, type: 'freeshipping', title: 'ส่งฟรีลด 40 บาท', desc: 'เมื่อซื้อขั้นต่ำ $15', label: 'FREE', sub: 'SHIPPING', color: 'blue', tag: 'ใช้ได้ 3 ครั้ง', expiry: 'หมดเขตสิ้นเดือน' },
-  ];
-
-  const filteredCoupons = activeTab === 'all' ? coupons : coupons.filter(c => c.type === activeTab);
-
   return (
-    <div className="min-h-screen bg-[#f7f7f4] text-[#26251e] font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif] p-4 md:p-8 overflow-hidden relative selection:bg-[#f54e00] selection:text-white">
-      {/* Background Decorative Blobs */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-orange-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob pointer-events-none"></div>
-      <div className="absolute top-[20%] right-[-5%] w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob animation-delay-2000 pointer-events-none"></div>
+    <div className="min-h-screen bg-[#F2EEE7] text-[#1A1A1A] font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif] p-4 md:p-8">
       
-      <div className="max-w-5xl mx-auto relative z-10">
+      <div className="page-container space-y-8 pb-20">
+        <Navbar />
         
-        {/* Header */}
-        <header className="mb-10 flex items-center justify-between mt-4">
-          <div className="flex items-center space-x-5">
-            <Link href="/" className="p-3.5 bg-white/60 hover:bg-white rounded-full shadow-sm backdrop-blur-sm transition-all text-[#5a5852] hover:text-[#f54e00] hover:shadow-md hover:-translate-x-1">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        {/* Header / Banner Section */}
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl overflow-hidden border border-[#e6e5e0] shadow-sm flex flex-col md:flex-row relative">
+          <div className="p-8 md:p-12 md:w-3/5 flex flex-col justify-center">
+            <h1 className="text-3xl md:text-4xl font-extrabold mb-4 text-[#1A1A1A]">ศูนย์รวมโค้ดส่วนลด</h1>
+            <p className="text-[#5a5852] text-sm md:text-base leading-relaxed mb-8 max-w-md">
+              สัมผัสความคุ้มของการอ่าน ด้วยส่วนลดพิเศษที่เราคัดสรรมาเพื่อคุณโดยเฉพาะ
+            </p>
+            <Link href="/profile/coupons" className="inline-flex items-center bg-white border border-[#e6e5e0] hover:bg-[#F2EEE7] transition-colors rounded-xl px-5 py-3 shadow-sm w-max font-bold text-[#1A1A1A]">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8861A" strokeWidth="2.5" className="mr-3"><rect x="3" y="8" width="18" height="12" rx="2"></rect><path d="M7 8V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+              <div className="flex flex-col text-left leading-tight">
+                <span className="text-[10px] text-[#807d72] font-semibold">คูปองของฉัน</span>
+                <span className="text-sm">12 ใบ</span>
+              </div>
             </Link>
-            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#26251e] to-[#5a5852] flex items-center">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f54e00" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mr-3"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
-              ศูนย์รวมโค้ดส่วนลด
-            </h1>
           </div>
-        </header>
+          <div className="md:w-2/5 h-48 md:h-auto relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent z-10 md:block hidden"></div>
+            <img 
+              src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=800" 
+              alt="Cozy reading room" 
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </div>
+        </div>
 
-        {/* Tabs */}
-        <div className="backdrop-blur-xl bg-white/50 border border-white/60 shadow-sm rounded-2xl p-2 flex overflow-x-auto space-x-2 mb-10" style={{ scrollbarWidth: 'none' }}>
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-8 py-3.5 rounded-xl font-semibold text-[15px] whitespace-nowrap transition-all duration-300 flex-1 ${activeTab === tab.id ? 'bg-white shadow-md text-[#f54e00]' : 'text-[#807d72] hover:text-[#26251e] hover:bg-white/60'}`}
-            >
-              {tab.label}
+        {/* Daily Check-in Section */}
+        <div className="bg-white rounded-2xl p-6 border border-[#e6e5e0] shadow-sm">
+          <div className="flex justify-between items-start md:items-center mb-6">
+            <div>
+              <h2 className="text-lg font-bold flex items-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#C8861A" stroke="none"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"></path></svg>
+                เช็คอินรายวันเพื่อรับเหรียญ
+              </h2>
+              <p className="text-xs text-[#807d72] mt-1">สะสมเหรียญเพื่อแลกรับส่วนลดและของรางวัลพิเศษ</p>
+            </div>
+            <button className="bg-primary hover:bg-opacity-90 text-white text-xs font-bold px-6 py-2.5 rounded-full shadow-sm transition-all">
+              เช็คอินวันนี้
             </button>
-          ))}
+          </div>
+          
+          <div className="flex justify-between items-center relative px-2 md:px-10">
+            {/* Connecting line */}
+            <div className="absolute left-[10%] right-[10%] top-6 h-[2px] bg-[#e6e5e0] z-0"></div>
+            
+            {[
+              { day: 'จันทร์', status: 'checked' },
+              { day: 'อังคาร', status: 'checked' },
+              { day: 'พุธ', status: 'pending', value: '+10' },
+              { day: 'พฤหัสฯ', status: 'pending', value: '+10' },
+              { day: 'ศุกร์', status: 'pending', value: '+15' },
+              { day: 'เสาร์', status: 'pending', value: '+20' },
+              { day: 'อาทิตย์', status: 'chest' },
+            ].map((item, i) => (
+              <div key={i} className="relative z-10 flex flex-col items-center gap-3">
+                {item.status === 'checked' && (
+                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white shadow-md border-4 border-white">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </div>
+                )}
+                {item.status === 'pending' && (
+                  <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-[#807d72] font-bold text-sm border-[2px] border-[#e6e5e0]">
+                    {item.value}
+                  </div>
+                )}
+                {item.status === 'chest' && (
+                  <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center border-[2px] border-primary text-primary shadow-[0_0_15px_rgba(200,134,26,0.3)]">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20 7h-4V5c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm-6-2v2h-4V5h4zM4 9h16v3h-4.22c-.44-1.16-1.57-2-2.78-2h-2c-1.21 0-2.34.84-2.78 2H4V9zm16 10H4v-5h4c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2h4v5z"></path></svg>
+                  </div>
+                )}
+                <span className={`text-xs font-semibold ${item.status === 'checked' ? 'text-[#1A1A1A]' : (item.status === 'chest' ? 'text-primary' : 'text-[#807d72]')}`}>{item.day}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Coupons Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredCoupons.map((coupon) => (
-             <div key={coupon.id} className="bg-white/80 backdrop-blur-md rounded-[1.5rem] border border-[#e6e5e0] flex overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group">
-               <div className={`w-24 sm:w-28 flex flex-col items-center justify-center border-r-2 border-dashed relative flex-shrink-0
-                  ${coupon.color === 'blue' ? 'bg-blue-50 border-blue-200 text-blue-600' : ''}
-                  ${coupon.color === 'orange' ? 'bg-orange-50 border-orange-200 text-orange-600' : ''}
-                  ${coupon.color === 'emerald' ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : ''}
-                  ${coupon.color === 'purple' ? 'bg-purple-50 border-purple-200 text-purple-600' : ''}
-               `}>
-                 <div className="absolute -top-3 -right-3 w-6 h-6 bg-[#f7f7f4] rounded-full"></div>
-                 <div className="absolute -bottom-3 -right-3 w-6 h-6 bg-[#f7f7f4] rounded-full"></div>
-                 <span className="font-bold text-2xl sm:text-3xl">{coupon.label}</span>
-                 <span className="text-[11px] sm:text-[12px] font-bold tracking-wider opacity-80 mt-1">{coupon.sub}</span>
-               </div>
-               
-               <div className="p-6 flex-1 flex flex-col justify-between">
-                 <div>
-                   <div className="flex justify-between items-start mb-2">
-                     <h3 className="font-bold text-[#26251e] text-[17px] leading-tight pr-2">{coupon.title}</h3>
-                     <span className={`text-[11px] font-bold px-2.5 py-1 rounded-md whitespace-nowrap
-                        ${coupon.color === 'blue' ? 'bg-blue-100 text-blue-700' : ''}
-                        ${coupon.color === 'orange' ? 'bg-orange-100 text-orange-700' : ''}
-                        ${coupon.color === 'emerald' ? 'bg-emerald-100 text-emerald-700' : ''}
-                        ${coupon.color === 'purple' ? 'bg-purple-100 text-purple-700' : ''}
-                     `}>{coupon.tag}</span>
-                   </div>
-                   <p className="text-[#807d72] text-[14px]">{coupon.desc}</p>
-                 </div>
-                 
-                 <div className="flex flex-wrap justify-between items-center mt-6 gap-3">
-                   <div className="text-[11px] text-red-500 font-medium flex items-center bg-red-50 px-2 py-1 rounded-lg">
-                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="mr-1.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                     {coupon.expiry}
-                   </div>
-                   <button className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-[13px] font-semibold px-5 py-2 rounded-full transition-all duration-300 shadow-md hover:shadow-orange-500/40 whitespace-nowrap">
-                     เก็บโค้ด
-                   </button>
-                 </div>
-               </div>
-             </div>
-          ))}
+        {/* Flash Vouchers Section */}
+        <div className="bg-[#3e2a14] rounded-2xl p-6 md:p-8 shadow-md">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-4">
+              <h2 className="text-xl md:text-2xl font-extrabold text-[#F2EEE7]">Flash Vouchers</h2>
+              <div className="flex items-center bg-[#291b0c] rounded-md px-3 py-1.5 gap-2 border border-white/10">
+                <span className="text-[#F2EEE7] text-[10px] font-bold tracking-wider">ENDS IN</span>
+                <div className="flex items-center gap-1">
+                  <span className="bg-white/10 text-[#F2EEE7] font-mono text-sm px-1.5 rounded">02</span>
+                  <span className="text-[#F2EEE7] text-xs">:</span>
+                  <span className="bg-white/10 text-[#F2EEE7] font-mono text-sm px-1.5 rounded">45</span>
+                  <span className="text-[#F2EEE7] text-xs">:</span>
+                  <span className="bg-white/10 text-[#F2EEE7] font-mono text-sm px-1.5 rounded">12</span>
+                </div>
+              </div>
+            </div>
+            <Link href="/coupons" className="text-white/60 hover:text-white text-xs font-bold transition-colors">ดูทั้งหมด</Link>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Flash Card 1 */}
+            <div className="bg-white rounded-xl flex overflow-hidden shadow-sm h-32 relative">
+              <div className="absolute top-1/2 -left-2 w-4 h-4 bg-[#3e2a14] rounded-full transform -translate-y-1/2 z-10"></div>
+              <div className="absolute top-1/2 -right-2 w-4 h-4 bg-[#3e2a14] rounded-full transform -translate-y-1/2 z-10"></div>
+              
+              <div className="w-1/3 bg-primary flex flex-col items-center justify-center text-white border-r border-dashed border-white/40">
+                <div className="flex items-start">
+                  <span className="text-2xl font-bold mt-1 mr-0.5">฿</span>
+                  <span className="text-5xl font-extrabold tracking-tighter">500</span>
+                </div>
+                <span className="text-[11px] font-bold tracking-widest uppercase">OFF</span>
+              </div>
+              
+              <div className="w-2/3 p-4 flex flex-col justify-between">
+                <div>
+                  <h3 className="font-bold text-[#1A1A1A] text-sm">ส่วนลดพิเศษประจำวัน</h3>
+                  <p className="text-[10px] text-[#807d72] mt-0.5">ขั้นต่ำ ฿2,500 | เฉพาะหมวดวรรณกรรม</p>
+                </div>
+                <div>
+                  <div className="flex justify-between text-[10px] text-[#807d72] mb-1 font-semibold">
+                    <span>เหลืออีก 14 สิทธิ์</span>
+                    <span>72% used</span>
+                  </div>
+                  <div className="w-full bg-[#F2EEE7] h-1.5 rounded-full overflow-hidden mb-3">
+                    <div className="bg-primary h-full rounded-full" style={{ width: '72%' }}></div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <button className="text-[10px] text-[#807d72] hover:text-[#1A1A1A] underline decoration-dashed underline-offset-2">เงื่อนไข</button>
+                    <button className="bg-[#3e2a14] text-white text-[11px] font-bold px-4 py-1.5 rounded-full hover:bg-black transition-colors">เก็บโค้ด</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Flash Card 2 */}
+            <div className="bg-white rounded-xl flex overflow-hidden shadow-sm h-32 relative">
+              <div className="absolute top-1/2 -left-2 w-4 h-4 bg-[#3e2a14] rounded-full transform -translate-y-1/2 z-10"></div>
+              <div className="absolute top-1/2 -right-2 w-4 h-4 bg-[#3e2a14] rounded-full transform -translate-y-1/2 z-10"></div>
+              
+              <div className="w-1/3 bg-primary flex flex-col items-center justify-center text-white border-r border-dashed border-white/40">
+                <div className="flex items-baseline">
+                  <span className="text-5xl font-extrabold tracking-tighter">20</span>
+                  <span className="text-2xl font-bold ml-0.5">%</span>
+                </div>
+                <span className="text-[11px] font-bold tracking-widest uppercase">OFF</span>
+              </div>
+              
+              <div className="w-2/3 p-4 flex flex-col justify-between">
+                <div>
+                  <h3 className="font-bold text-[#1A1A1A] text-sm">Mid-Day Surprise</h3>
+                  <p className="text-[10px] text-[#807d72] mt-0.5">ลดสูงสุด ฿200 | ไม่มีขั้นต่ำ</p>
+                </div>
+                <div>
+                  <div className="flex justify-between text-[10px] text-[#807d72] mb-1 font-semibold">
+                    <span>เหลืออีก 9 สิทธิ์</span>
+                    <span>80% used</span>
+                  </div>
+                  <div className="w-full bg-[#F2EEE7] h-1.5 rounded-full overflow-hidden mb-3">
+                    <div className="bg-primary h-full rounded-full" style={{ width: '80%' }}></div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <button className="text-[10px] text-[#807d72] hover:text-[#1A1A1A] underline decoration-dashed underline-offset-2">เงื่อนไข</button>
+                    <button className="bg-[#3e2a14] text-white text-[11px] font-bold px-4 py-1.5 rounded-full hover:bg-black transition-colors">เก็บโค้ด</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        
+
+        {/* Shop Vouchers */}
+        <div>
+          <div className="flex justify-between items-end mb-4 px-1">
+            <h2 className="text-lg font-extrabold text-[#1A1A1A]">ส่วนลดร้านค้า</h2>
+            <Link href="/coupons" className="text-primary text-xs font-bold hover:underline">ดูทั้งหมด</Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            <div className="bg-white border border-[#e6e5e0] rounded-xl flex flex-col relative overflow-hidden group">
+              <div className="absolute top-1/2 -left-2 w-4 h-4 bg-[#F2EEE7] rounded-full transform -translate-y-1/2 z-10 border-r border-[#e6e5e0]"></div>
+              <div className="absolute top-1/2 -right-2 w-4 h-4 bg-[#F2EEE7] rounded-full transform -translate-y-1/2 z-10 border-l border-[#e6e5e0]"></div>
+              
+              <div className="p-4 flex gap-3 border-b border-dashed border-[#e6e5e0]">
+                <div className="w-12 h-12 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0 text-primary">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                </div>
+                <div>
+                  <h3 className="font-bold text-[#1A1A1A] text-sm">สมาชิกใหม่ลด 10%</h3>
+                  <p className="text-[10px] text-[#807d72] mt-0.5">ไม่มีขั้นต่ำ</p>
+                  <span className="inline-block mt-2 text-[8px] font-bold bg-orange-50 text-primary px-1.5 py-0.5 rounded border border-orange-100">NEW MEMBER</span>
+                </div>
+              </div>
+              <div className="p-3 bg-[#faf9f7] flex justify-between items-center text-[10px]">
+                <span className="text-[#807d72]">หมดเขต 30 ก.ย. 67</span>
+                <button className="text-primary font-bold px-3 py-1 bg-white border border-primary/20 rounded-full hover:bg-primary hover:text-white transition-colors">เก็บโค้ด</button>
+              </div>
+            </div>
+
+            <div className="bg-white border border-[#e6e5e0] rounded-xl flex flex-col relative overflow-hidden group">
+              <div className="absolute top-1/2 -left-2 w-4 h-4 bg-[#F2EEE7] rounded-full transform -translate-y-1/2 z-10 border-r border-[#e6e5e0]"></div>
+              <div className="absolute top-1/2 -right-2 w-4 h-4 bg-[#F2EEE7] rounded-full transform -translate-y-1/2 z-10 border-l border-[#e6e5e0]"></div>
+              
+              <div className="p-4 flex gap-3 border-b border-dashed border-[#e6e5e0]">
+                <div className="w-12 h-12 rounded-lg bg-[#F2EEE7] border border-[#e6e5e0] flex items-center justify-center flex-shrink-0 text-[#1A1A1A]">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
+                </div>
+                <div>
+                  <h3 className="font-bold text-[#1A1A1A] text-sm">ลด ฿50 เมื่อช้อป ฿500</h3>
+                  <p className="text-[10px] text-[#807d72] mt-0.5">สำหรับหมวดจิตวิทยา</p>
+                  <span className="inline-block mt-2 text-[8px] font-bold bg-[#F2EEE7] text-[#5a5852] px-1.5 py-0.5 rounded border border-[#e6e5e0]">LIMITED</span>
+                </div>
+              </div>
+              <div className="p-3 bg-[#faf9f7] flex justify-between items-center text-[10px]">
+                <span className="text-[#807d72]">หมดเขต 15 ต.ค. 67</span>
+                <button className="text-primary font-bold px-3 py-1 bg-white border border-primary/20 rounded-full hover:bg-primary hover:text-white transition-colors">เก็บโค้ด</button>
+              </div>
+            </div>
+
+            <div className="bg-white border border-[#e6e5e0] rounded-xl flex flex-col relative overflow-hidden group">
+              <div className="absolute top-1/2 -left-2 w-4 h-4 bg-[#F2EEE7] rounded-full transform -translate-y-1/2 z-10 border-r border-[#e6e5e0]"></div>
+              <div className="absolute top-1/2 -right-2 w-4 h-4 bg-[#F2EEE7] rounded-full transform -translate-y-1/2 z-10 border-l border-[#e6e5e0]"></div>
+              
+              <div className="p-4 flex gap-3 border-b border-dashed border-[#e6e5e0]">
+                <div className="w-12 h-12 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0 text-primary">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                </div>
+                <div>
+                  <h3 className="font-bold text-[#1A1A1A] text-sm">ซื้อ 3 เล่ม ลด ฿100</h3>
+                  <p className="text-[10px] text-[#807d72] mt-0.5">เฉพาะสำนักพิมพ์ที่ร่วมรายการ</p>
+                  <span className="inline-block mt-2 text-[8px] font-bold bg-orange-50 text-primary px-1.5 py-0.5 rounded border border-orange-100">BUNDLE</span>
+                </div>
+              </div>
+              <div className="p-3 bg-[#faf9f7] flex justify-between items-center text-[10px]">
+                <span className="text-[#807d72]">หมดเขต 15 ต.ค. 67</span>
+                <button className="text-primary font-bold px-3 py-1 bg-white border border-primary/20 rounded-full hover:bg-primary hover:text-white transition-colors">เก็บโค้ด</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Shipping Vouchers */}
+        <div>
+          <div className="flex justify-between items-end mb-4 px-1">
+            <h2 className="text-lg font-extrabold text-[#1A1A1A]">ส่วนลดค่าจัดส่ง</h2>
+            <Link href="/coupons" className="text-primary text-xs font-bold hover:underline">ดูทั้งหมด</Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            <div className="bg-orange-50/50 border border-primary/30 rounded-xl p-4 flex flex-col justify-between relative shadow-sm h-32">
+              <div>
+                <span className="inline-block text-[8px] font-bold bg-primary text-white px-1.5 py-0.5 rounded mb-2">FREE SHIPPING</span>
+                <h3 className="font-bold text-[#1A1A1A] text-sm">ส่งฟรีไม่มีขั้นต่ำ</h3>
+                <p className="text-[10px] text-[#807d72] mt-1">ใช้ได้กับการส่งพัสดุธรรมดา</p>
+              </div>
+              <div className="flex justify-between items-end mt-2">
+                <span className="text-[10px] text-[#807d72]">เหลืออีก 2 วันเท่านั้น</span>
+                <button className="bg-primary text-white text-[10px] font-bold px-4 py-1.5 rounded-full hover:bg-opacity-90 transition-colors shadow-sm">เก็บโค้ด</button>
+              </div>
+            </div>
+
+            <div className="bg-orange-50/50 border border-primary/30 rounded-xl p-4 flex flex-col justify-between relative shadow-sm h-32">
+              <div>
+                <span className="inline-block text-[8px] font-bold bg-primary text-white px-1.5 py-0.5 rounded mb-2">FREE SHIPPING</span>
+                <h3 className="font-bold text-[#1A1A1A] text-sm">ส่งฟรี เมื่อครบ ฿300</h3>
+                <p className="text-[10px] text-[#807d72] mt-1">สำหรับการขนส่งมาตรฐาน</p>
+              </div>
+              <div className="flex justify-between items-end mt-2">
+                <span className="text-[10px] text-[#807d72]">ใช้ได้ไม่จำกัด</span>
+                <button className="bg-primary text-white text-[10px] font-bold px-4 py-1.5 rounded-full hover:bg-opacity-90 transition-colors shadow-sm">เก็บโค้ด</button>
+              </div>
+            </div>
+
+            <div className="bg-[#e6e5e0]/30 border border-[#e6e5e0] border-dashed rounded-xl p-4 flex flex-col items-center justify-center relative h-32 hover:bg-[#e6e5e0]/50 transition-colors cursor-pointer group">
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-[#e6e5e0] mb-2 group-hover:scale-110 transition-transform">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#807d72" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </div>
+              <span className="text-xs font-semibold text-[#5a5852]">ดูส่วนลดขนส่งอื่นๆ</span>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Partner Privileges */}
+        <div>
+          <div className="flex justify-between items-end mb-4 px-1">
+            <h2 className="text-lg font-extrabold text-[#1A1A1A]">สิทธิพิเศษพาร์ทเนอร์</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <div className="bg-white border border-[#e6e5e0] rounded-xl flex overflow-hidden shadow-sm h-24">
+              <div className="w-1/3 bg-[#0f4a9b] flex flex-col items-center justify-center text-white">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-1"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                <span className="text-[10px] font-extrabold tracking-widest mt-1">VISA</span>
+                <span className="text-[8px] opacity-80">Platinum</span>
+              </div>
+              <div className="w-2/3 p-4 flex flex-col justify-between">
+                <div>
+                  <h3 className="font-bold text-[#1A1A1A] text-sm leading-tight">ลด ฿200 ทุกยอดใช้จ่าย</h3>
+                  <p className="text-[9px] text-[#807d72] mt-1 leading-tight line-clamp-2">เมื่อมียอดสั่งซื้อขั้นต่ำ ฿1,000 ขึ้นไปผ่านบัตรเครดิตที่ร่วมรายการ</p>
+                </div>
+                <div className="flex justify-between items-center mt-1">
+                  <span className="text-[9px] text-[#807d72]">CODE : VISABOOK24</span>
+                  <button className="text-[10px] font-bold text-primary hover:underline">รับสิทธิ์เลย</button>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-[#e6e5e0] rounded-xl flex overflow-hidden shadow-sm h-24">
+              <div className="w-1/3 bg-[#f5f6f2] flex flex-col items-center justify-center border-r border-[#e6e5e0]">
+                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-[#e6e5e0] mb-1 shadow-sm">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00a950" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                </div>
+                <span className="text-[10px] font-extrabold tracking-widest text-[#1A1A1A]">KBANK</span>
+              </div>
+              <div className="w-2/3 p-4 flex flex-col justify-between">
+                <div>
+                  <h3 className="font-bold text-[#1A1A1A] text-sm leading-tight">รับ K Point 5 เท่า</h3>
+                  <p className="text-[9px] text-[#807d72] mt-1 leading-tight line-clamp-2">ทุกวันพุธ เมื่อซื้อหนังสือในหมวดพัฒนาตนเองผ่าน K PLUS</p>
+                </div>
+                <div className="flex justify-between items-center mt-1">
+                  <span className="text-[9px] text-[#807d72]">Exclusive Reward</span>
+                  <button className="text-[10px] font-bold text-primary hover:underline">รับสิทธิ์เลย</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
     </div>
   );

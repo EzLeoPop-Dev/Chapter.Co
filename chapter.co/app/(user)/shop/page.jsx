@@ -26,10 +26,10 @@ export default function ShopPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#f7f7f4] text-[#26251e] font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif] relative selection:bg-[#f54e00] selection:text-white p-4 md:p-8">
+    <div className="min-h-screen bg-[#F2EEE7] text-[#1A1A1A] font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif] relative selection:bg-[#C8861A] selection:text-white p-4 md:p-8">
       {/* Decorative Blobs */}
-      <div className="fixed top-[-10%] left-[-10%] w-96 h-96 bg-orange-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob pointer-events-none z-0"></div>
-      <div className="fixed bottom-[-10%] right-[-5%] w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob animation-delay-2000 pointer-events-none z-0"></div>
+      <div className="fixed top-[-10%] left-[-10%] w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob pointer-events-none z-0"></div>
+      <div className="fixed bottom-[-10%] right-[-5%] w-96 h-96 bg-tertiary rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob animation-delay-2000 pointer-events-none z-0"></div>
 
       {/* Main Layout Container (Containerized) */}
       <div className="max-w-7xl mx-auto flex flex-col h-[calc(100vh-2rem)] md:h-[calc(100vh-4rem)] relative z-10">
@@ -70,7 +70,7 @@ export default function ShopPage() {
               />
 
               {/* Promotion Banner */}
-              <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-[2rem] p-8 md:p-10 mb-12 relative overflow-hidden shadow-[0_8px_30px_rgb(249,115,22,0.2)]">
+              <div className="bg-gradient-to-r from-primary to-primary rounded-[2rem] p-8 md:p-10 mb-12 relative overflow-hidden shadow-[0_8px_30px_rgb(249,115,22,0.2)]">
                 <div className="absolute right-0 top-0 w-64 h-64 bg-white opacity-10 rounded-full blur-2xl transform translate-x-1/3 -translate-y-1/3"></div>
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-center">
                   <div className="mb-6 md:mb-0 text-white">
@@ -78,9 +78,9 @@ export default function ShopPage() {
                       พิเศษสุดวันนี้
                     </div>
                     <h2 className="text-3xl md:text-4xl font-bold mb-2">ลดล้างสต๊อก สูงสุด 50%</h2>
-                    <p className="text-orange-100 font-medium opacity-90">ในหมวดหมู่ Self-Help และ Business พลาดไม่ได้!</p>
+                    <p className="text-primary font-medium opacity-90">ในหมวดหมู่ Self-Help และ Business พลาดไม่ได้!</p>
                   </div>
-                  <button className="bg-white text-orange-600 font-bold px-8 py-3.5 rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300">
+                  <button className="bg-white text-primary font-bold px-8 py-3.5 rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300">
                     ช้อปเลย
                   </button>
                 </div>

@@ -10,8 +10,8 @@ export default function StaffEbooksPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-3xl font-black text-[#26251e]">จัดการ E-book (E-book Management)</h2>
-        <button className="bg-orange-500 text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-orange-600 transition-colors shadow-sm flex items-center">
+        <h2 className="text-3xl font-black text-[#1A1A1A]">จัดการ E-book (E-book Management)</h2>
+        <button className="bg-primary text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-primary transition-colors shadow-sm flex items-center">
           <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
           อัปโหลดไฟล์ใหม่
         </button>
@@ -34,15 +34,15 @@ export default function StaffEbooksPage() {
               {ebooks.map((eb, idx) => (
                 <tr key={idx} className="hover:bg-white/80 transition-colors">
                   <td className="p-5 text-sm font-bold text-[#a09c92]">{eb.id}</td>
-                  <td className="p-5 font-bold text-[#26251e]">{eb.title}</td>
-                  <td className="p-5 text-sm text-[#5a5852] font-mono"><span className="bg-white/60 border border-[#e6e5e0] px-2.5 py-1 rounded-lg">{eb.file}</span></td>
-                  <td className="p-5 text-center text-sm font-bold text-[#5a5852]">{eb.size}</td>
-                  <td className="p-5 text-center font-black text-orange-600 text-lg">{eb.downloads}</td>
+                  <td className="p-5 font-bold text-[#1A1A1A]">{eb.title}</td>
+                  <td className="p-5 text-sm text-[#1A1A1A] font-mono"><span className="bg-white/60 border border-[#e6e5e0] px-2.5 py-1 rounded-lg">{eb.file}</span></td>
+                  <td className="p-5 text-center text-sm font-bold text-[#1A1A1A]">{eb.size}</td>
+                  <td className="p-5 text-center font-black text-primary text-lg">{eb.downloads}</td>
                   <td className="p-5 flex justify-center space-x-3">
-                    <button className="p-2.5 bg-white border border-[#e6e5e0] hover:bg-orange-50 text-[#5a5852] hover:text-orange-600 hover:border-orange-200 rounded-xl transition-all shadow-sm" title="แก้ไข">
+                    <button className="p-2.5 bg-white border border-[#e6e5e0] hover:bg-orange-50 text-[#1A1A1A] hover:text-primary hover:border-primary rounded-xl transition-all shadow-sm" title="แก้ไข">
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                     </button>
-                    <button className="p-2.5 bg-white border border-[#e6e5e0] hover:bg-red-50 text-[#5a5852] hover:text-red-500 hover:border-red-200 rounded-xl transition-all shadow-sm" title="ลบ">
+                    <button className="p-2.5 bg-white border border-[#e6e5e0] hover:bg-red-50 text-[#1A1A1A] hover:text-red-500 hover:border-red-200 rounded-xl transition-all shadow-sm" title="ลบ">
                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                     </button>
                   </td>

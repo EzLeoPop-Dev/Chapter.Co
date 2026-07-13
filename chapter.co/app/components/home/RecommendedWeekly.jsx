@@ -6,10 +6,10 @@ export default function RecommendedWeekly() {
     <section className="mb-16">
       <div className="mb-8 flex items-center justify-between">
         <div className="flex items-center">
-          <h2 className="text-[36px] font-normal tracking-[-0.72px] text-[#26251e] mr-4">หนังสือแนะนำประจำสัปดาห์</h2>
+          <h2 className="text-[36px] font-normal tracking-[-0.72px] text-[#1A1A1A] mr-4">หนังสือแนะนำประจำสัปดาห์</h2>
           <div className="hidden sm:block w-32 h-px bg-gradient-to-r from-[#e6e5e0] to-transparent"></div>
         </div>
-        <button className="text-[14px] font-medium text-[#f54e00] hover:text-orange-600">ดูทั้งหมด →</button>
+        <button className="text-[14px] font-medium text-[#C8861A] hover:text-primary">ดูทั้งหมด →</button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -26,16 +26,16 @@ export default function RecommendedWeekly() {
             {/* Book Details */}
             <div className="px-2">
               <div className="flex items-center text-[13px] text-[#807d72] mb-2">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="#f54e00" stroke="#f54e00" className="mr-1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                <span className="font-semibold text-[#26251e] mr-1.5">4.9</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#C8861A" stroke="#C8861A" className="mr-1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                <span className="font-semibold text-[#1A1A1A] mr-1.5">4.9</span>
                 <span className="font-normal">1.2k reviews</span>
               </div>
-              <h3 className="font-semibold text-[18px] text-[#26251e] mb-1 group-hover:text-[#f54e00] transition-colors">Nebula Dreams</h3>
-              <p className="text-[16px] text-[#5a5852] mb-4 font-normal">Elena Vance</p>
+              <h3 className="font-semibold text-[18px] text-[#1A1A1A] mb-1 group-hover:text-[#C8861A] transition-colors">Nebula Dreams</h3>
+              <p className="text-[16px] text-[#1A1A1A] mb-4 font-normal">Elena Vance</p>
 
               <div className="flex justify-between items-center">
-                <span className="text-[22px] font-normal tracking-[-0.11px] text-[#26251e]">$24.99</span>
-                <button className="bg-[#e6e5e0] text-[#26251e] p-2.5 rounded-xl hover:bg-[#f54e00] hover:text-white hover:shadow-lg hover:shadow-orange-500/30 transition-all duration-300">
+                <span className="text-[22px] font-normal tracking-[-0.11px] text-[#1A1A1A]">$24.99</span>
+                <button className="bg-[#e6e5e0] text-[#1A1A1A] p-2.5 rounded-xl hover:bg-[#C8861A] hover:text-white hover:shadow-lg hover:shadow-primary/30 transition-all duration-300">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
                 </button>
               </div>

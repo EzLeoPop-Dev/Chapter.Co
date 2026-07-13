@@ -1,54 +1,135 @@
-import React from 'react';
-import CustomDropdown from './CustomDropdown';
-import MultiSelectDropdown from './MultiSelectDropdown';
+import React, { useState } from 'react';
 
 export default function CategorySidebar({ 
   categories, selectedCategory, setSelectedCategory,
   bookTypes, selectedBookTypes, setSelectedBookTypes,
   publishers, selectedPublisher, setSelectedPublisher
 }) {
+  const [priceMin, setPriceMin] = useState('');
+  const [priceMax, setPriceMax] = useState('');
+  const [isCategoryOpen, setIsCategoryOpen] = useState(true);
+
+  // We'll use the actual `categories` prop to render the list instead of mocked data
+
+
+  const handleCategoryToggle = (catName) => {
+    if (selectedCategory === catName) {
+      setSelectedCategory('All');
+    } else {
+      setSelectedCategory(catName);
+    }
+  };
+
+  const handleFormatToggle = (format) => {
+    if (selectedBookTypes.includes(format)) {
+      setSelectedBookTypes(selectedBookTypes.filter(t => t !== format));
+    } else {
+      setSelectedBookTypes([...selectedBookTypes, format]);
+    }
+  };
+
+  const clearAll = () => {
+    setSelectedCategory('All');
+    setSelectedBookTypes([]);
+    setSelectedPublisher('All');
+    setPriceMin('');
+    setPriceMax('');
+  };
+
   return (
-    <aside className="w-64 flex-shrink-0 hidden lg:flex flex-col h-full bg-white/40 backdrop-blur-xl border border-white/60 rounded-[2.5rem] shadow-sm mr-6 overflow-hidden">
-      <div className="p-8 pb-4">
-        <h2 className="text-xl font-bold text-[#26251e] mb-6 flex items-center">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f54e00" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-          หมวดหมู่หนังสือ
-        </h2>
-      </div>
-      
-      <div className="flex-1 overflow-y-auto px-6 pb-8" style={{ scrollbarWidth: 'none' }}>
-        {/* Category Filter */}
+    <aside className="w-64 flex-shrink-0 hidden lg:flex flex-col h-full bg-[#FAFAF8] border border-[#e6e5e0] rounded-2xl shadow-sm mr-6 overflow-hidden">
+      <div className="p-5">
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-[20px] font-black text-[#1A1A1A]">ตัวกรอง</h2>
+          <button onClick={clearAll} className="text-[12px] font-medium text-[#807d72] hover:text-primary underline">ล้างทั้งหมด</button>
+        </div>
+        <div className="w-full h-[1px] bg-[#e6e5e0] mb-5"></div>
+        
+        {/* Category Filter (Accordion Style) */}
         <div className="mb-6">
-          <CustomDropdown 
-            label="หมวดหมู่"
-            options={categories}
-            value={selectedCategory}
-            onChange={setSelectedCategory}
-            placeholder="หนังสือทั้งหมด"
-          />
+          <button 
+            onClick={() => setIsCategoryOpen(!isCategoryOpen)} 
+            className="w-full bg-[#f5f5f5] hover:bg-[#e6e5e0] transition-colors rounded-xl p-3 flex justify-between items-center mb-4"
+          >
+            <h3 className="font-bold text-[14px] text-[#1A1A1A]">หมวดหมู่สินค้า</h3>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`transition-transform duration-300 ${isCategoryOpen ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          
+          {isCategoryOpen && (
+            <div className="px-2">
+              <button className="flex items-center text-[14px] font-bold text-[#1A1A1A] mb-3 hover:text-primary transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mr-3"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                หนังสือ
+              </button>
+              
+              <div className="space-y-1 ml-7 max-h-56 overflow-y-auto pr-2">
+                {categories.map((cat, idx) => {
+                  const isSelected = selectedCategory === cat;
+                  return (
+                    <button 
+                      key={idx} 
+                      onClick={() => handleCategoryToggle(cat)}
+                      className={`w-full flex justify-between items-center py-2.5 text-[13px] transition-colors text-left group ${isSelected ? 'text-primary font-bold' : 'text-[#5a5852] hover:text-primary font-medium'}`}
+                    >
+                      <span className="truncate pr-4">{cat}</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${isSelected ? 'text-primary' : 'text-[#d0cdc5] group-hover:text-primary'}`}><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Book Type Filter (Multi-Select) */}
+        <div className="w-full h-[1px] bg-[#e6e5e0] mb-5"></div>
+
+        {/* Book Type Filter */}
         <div className="mb-6">
-          <MultiSelectDropdown 
-            label="ประเภทหนังสือ"
-            options={bookTypes}
-            selectedValues={selectedBookTypes}
-            onChange={setSelectedBookTypes}
-            placeholder="ประเภททั้งหมด"
-          />
+          <h3 className="font-bold text-[14px] text-[#1A1A1A] mb-3">ประเภท</h3>
+          <div className="flex flex-wrap gap-2">
+            {['รูปเล่ม', 'E-book'].map((type, idx) => {
+              const isSelected = selectedBookTypes.includes(type) || (selectedBookTypes.length === 0 && type === 'รูปเล่ม'); // Mocking image state
+              return (
+                <button
+                  key={type}
+                  onClick={() => handleFormatToggle(type)}
+                  className={`px-4 py-1 rounded-full text-[12px] font-bold transition-colors border ${isSelected ? 'border-[#C8861A] text-[#C8861A] bg-transparent' : 'border-[#e6e5e0] text-[#807d72] bg-white hover:border-[#C8861A]'}`}
+                >
+                  {type}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Publisher Filter */}
-        <div className="mb-8">
-          <CustomDropdown 
-            label="สำนักพิมพ์"
-            options={publishers}
-            value={selectedPublisher}
-            onChange={setSelectedPublisher}
-            placeholder="ทุกสำนักพิมพ์"
-          />
+        <div className="w-full h-[1px] bg-[#e6e5e0] mb-5"></div>
+
+        {/* Price Filter */}
+        <div className="mb-6">
+          <h3 className="font-bold text-[14px] text-[#1A1A1A] mb-3">ช่วงราคา</h3>
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <input 
+              type="text" 
+              placeholder="ต่ำสุด" 
+              value={priceMin}
+              onChange={(e) => setPriceMin(e.target.value)}
+              className="w-full border border-[#e6e5e0] rounded-lg px-2 py-1.5 text-[12px] text-center focus:outline-none focus:border-[#C8861A] focus:ring-1 focus:ring-[#C8861A]"
+            />
+            <span className="text-[#a09c92] text-[12px]">-</span>
+            <input 
+              type="text" 
+              placeholder="สูงสุด" 
+              value={priceMax}
+              onChange={(e) => setPriceMax(e.target.value)}
+              className="w-full border border-[#e6e5e0] rounded-lg px-2 py-1.5 text-[12px] text-center focus:outline-none focus:border-[#C8861A] focus:ring-1 focus:ring-[#C8861A]"
+            />
+          </div>
+          <button className="w-full bg-[#E8E6E1] text-[#1A1A1A] font-bold text-[13px] py-2 rounded-lg hover:bg-primary hover:text-white transition-colors">
+            ประยุกต์ใช้
+          </button>
         </div>
+
+        <div className="w-full h-[1px] bg-[#e6e5e0]"></div>
 
       </div>
     </aside>

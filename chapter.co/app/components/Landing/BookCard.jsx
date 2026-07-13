@@ -24,13 +24,13 @@ export default function BookCard({ title, author, price, rating, reviews, coverT
                         <span className="font-bold text-slate-700 mr-1.5">{rating}</span>
                         <span className="font-light">({reviews})</span>
                     </div>
-                    <h3 className="font-bold text-base text-slate-800 mb-1 group-hover:text-orange-500 transition-colors line-clamp-1">{title}</h3>
+                    <h3 className="font-bold text-base text-slate-800 mb-1 group-hover:text-primary transition-colors line-clamp-1">{title}</h3>
                     <p className="text-xs text-slate-500 mb-3 font-light">{author}</p>
                 </div>
 
                 <div className="flex justify-between items-center mt-auto">
                     <span className="text-lg font-extrabold text-slate-800">${price}</span>
-                    <button className="bg-slate-100/80 backdrop-blur-sm text-slate-600 p-2 rounded-xl hover:bg-orange-500 hover:text-white hover:shadow-lg hover:shadow-orange-500/30 transition-all duration-300">
+                    <button className="bg-slate-100/80 backdrop-blur-sm text-slate-600 p-2 rounded-xl hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-primary/30 transition-all duration-300">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                         </svg>
