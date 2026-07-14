@@ -1,9 +1,24 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 
 export default function OrderTrackingPage() {
+  const [orderData, setOrderData] = useState(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = window.localStorage.getItem('chapter-last-order');
+      if (raw) setOrderData(JSON.parse(raw));
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  const itemsList = orderData?.items ?? null;
+  const formatCurrency = (v) => (typeof v === 'number' ? `฿${v.toFixed(2)}` : v);
+
   return (
     <div className="min-h-screen bg-[#FCFBFA] text-[#1A1A1A] font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif] relative pb-16">
       
@@ -128,48 +143,33 @@ export default function OrderTrackingPage() {
               </div>
             </div>
 
-            {/* Order Items */}
-            <div className="bg-white border border-[#e6e5e0] rounded-[24px] p-8 md:p-10 shadow-sm">
-              <h2 className="text-[18px] font-bold text-[#1A1A1A] mb-6 border-b border-[#e6e5e0] pb-5">รายการสินค้าในคำสั่งซื้อ (2)</h2>
-              
-              <div className="space-y-6">
-                {/* Item 1 */}
-                <div className="flex gap-5">
-                  <div className="w-20 h-28 bg-[#e5dfd3] rounded-lg overflow-hidden flex-shrink-0 shadow-sm border border-[#e6e5e0]">
-                    <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=200&auto=format&fit=crop" alt="book" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-                  </div>
-                  <div className="flex-1 flex flex-col justify-center py-2">
-                    <h3 className="text-[15px] font-bold text-[#1A1A1A] mb-1">The Silent Vault: A Study of Space</h3>
-                    <p className="text-[13px] text-[#807d72] mb-4 flex items-center gap-1.5">
-                      <span className="bg-[#f0efeb] text-[#807d72] px-2 py-0.5 rounded text-[11px] font-bold">ผู้แต่ง</span> 
-                      Eleanor Vance
-                    </p>
-                    <div className="flex items-center gap-4">
-                      <span className="text-[12px] bg-[#f5f5f5] text-[#5a5852] px-3 py-1 rounded font-bold">จำนวน: 1</span>
-                      <span className="text-[15px] font-bold text-[#C8861A]">฿450.00</span>
-                    </div>
-                  </div>
-                </div>
+                {/* Order Items */}
+                <div className="bg-white border border-[#e6e5e0] rounded-[24px] p-8 md:p-10 shadow-sm">
+                  <h2 className="text-[18px] font-bold text-[#1A1A1A] mb-6 border-b border-[#e6e5e0] pb-5">รายการสินค้าในคำสั่งซื้อ ({itemsList ? itemsList.length : 0})</h2>
 
-                {/* Item 2 */}
-                <div className="flex gap-5">
-                  <div className="w-20 h-28 bg-[#e5dfd3] rounded-lg overflow-hidden flex-shrink-0 shadow-sm border border-[#e6e5e0]">
-                    <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=200&auto=format&fit=crop" alt="book" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-                  </div>
-                  <div className="flex-1 flex flex-col justify-center py-2">
-                    <h3 className="text-[15px] font-bold text-[#1A1A1A] mb-1">Golden Hour Verses</h3>
-                    <p className="text-[13px] text-[#807d72] mb-4 flex items-center gap-1.5">
-                      <span className="bg-[#f0efeb] text-[#807d72] px-2 py-0.5 rounded text-[11px] font-bold">ผู้แต่ง</span> 
-                      Julian Barnes
-                    </p>
-                    <div className="flex items-center gap-4">
-                      <span className="text-[12px] bg-[#f5f5f5] text-[#5a5852] px-3 py-1 rounded font-bold">จำนวน: 1</span>
-                      <span className="text-[15px] font-bold text-[#C8861A]">฿320.00</span>
-                    </div>
+                  <div className="space-y-6">
+                    {(itemsList ?? []).map((item, idx) => (
+                      <div key={item.id ?? idx} className="flex gap-5">
+                        <div className="w-20 h-28 bg-[#e5dfd3] rounded-lg overflow-hidden flex-shrink-0 shadow-sm border border-[#e6e5e0]">
+                          <img src={item.image || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=200&auto=format&fit=crop'} alt={item.title || 'book'} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                        </div>
+                        <div className="flex-1 flex flex-col justify-center py-2">
+                          <h3 className="text-[15px] font-bold text-[#1A1A1A] mb-1">{item.title || item.name}</h3>
+                          {item.author && (
+                            <p className="text-[13px] text-[#807d72] mb-4 flex items-center gap-1.5">
+                              <span className="bg-[#f0efeb] text-[#807d72] px-2 py-0.5 rounded text-[11px] font-bold">ผู้แต่ง</span>
+                              {item.author}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-4">
+                            <span className="text-[12px] bg-[#f5f5f5] text-[#5a5852] px-3 py-1 rounded font-bold">จำนวน: {item.quantity ?? item.qty ?? 1}</span>
+                            <span className="text-[15px] font-bold text-[#C8861A]">{formatCurrency(item.price ?? (item.total ? item.total / (item.quantity||1) : 0))}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
-            </div>
 
           </div>
 
@@ -187,16 +187,14 @@ export default function OrderTrackingPage() {
               
               <div className="mb-5">
                 <p className="text-[11px] text-[#807d72] mb-1">ผู้รับสินค้า</p>
-                <p className="text-[14px] font-bold text-[#1A1A1A]">คุณกิตติศักดิ์ พรหมศร</p>
+                <p className="text-[14px] font-bold text-[#1A1A1A]">{orderData?.customer?.name ?? orderData?.customer?.customerName ?? '—'}</p>
+                {orderData?.customer?.phone && <p className="text-[13px] text-[#5a5852]">{orderData.customer.phone}</p>}
               </div>
               
               <div className="mb-5">
                 <p className="text-[11px] text-[#807d72] mb-1">ที่อยู่สำหรับการจัดส่ง</p>
                 <p className="text-[13px] text-[#5a5852] leading-relaxed">
-                  123/45 หมู่บ้านวิจิตศิลป์ ซอยสุขุมวิท 63<br/>
-                  แขวงพระโขนงเหนือ เขตวัฒนา<br/>
-                  กรุงเทพมหานคร 10110<br/>
-                  ประเทศไทย
+                  {orderData?.customer?.address ?? '—'}
                 </p>
               </div>
 
@@ -204,13 +202,13 @@ export default function OrderTrackingPage() {
                 <p className="text-[11px] text-[#807d72] mb-2">วิธีการจัดส่ง</p>
                 <div className="flex items-center text-[13px] font-medium text-[#1A1A1A]">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1ba5e1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-                  Standard Delivery (Kerry Express)
+                  {orderData?.shippingMethod === 'express' ? 'Express Delivery' : 'Standard Delivery'}{orderData?.shippingMethod ? '' : ' (default)'}
                 </div>
               </div>
 
               <div className="border-t border-[#d0cdc5] pt-6 flex justify-between items-end mt-8">
                 <p className="text-[13px] text-[#807d72] font-bold">สรุปยอดชำระ<br/><span className="text-[16px] text-[#1A1A1A]">ยอดรวมสุทธิ</span></p>
-                <p className="text-[24px] font-black text-[#1A1A1A]">฿770.00</p>
+                <p className="text-[24px] font-black text-[#1A1A1A]">{formatCurrency(orderData?.summary?.total ?? orderData?.total ?? 0)}</p>
               </div>
             </div>
 
