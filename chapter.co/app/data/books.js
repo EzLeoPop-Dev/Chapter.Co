@@ -1,210 +1,85 @@
-export const categories = ['All', 'Fiction', 'Science', 'Philosophy', 'Design', 'Technology', 'Business', 'Self-Help', 'การ์ตูน (Manga)'];
-export const bookTypes = ['All', 'ปกแข็ง', 'ปกอ่อน', 'E-Book'];
-export const publishers = ['All', 'Chapter Publishing', 'Global Books', 'Mindset Press', 'Comic World'];
+import booksData from './books.json';
 
-export const books = [
-  { 
-    id: 1, 
-    title: 'Atomic Habits', 
-    author: 'James Clear', 
-    price: 15.99, 
-    category: 'Self-Help', 
-    bookType: 'ปกอ่อน', 
-    publisher: 'Mindset Press', 
-    rating: 4.9, 
-    reviews: '15k', 
-    image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=400&auto=format&fit=crop', 
-    desc: 'No matter your goals, Atomic Habits offers a proven framework for improving--every day. James Clear, one of the world\'s leading experts on habit formation, reveals practical strategies that will teach you exactly how to form good habits, break bad ones, and master the tiny behaviors that lead to remarkable results.',
-    pages: 320,
-    isbn: '978-0735211292',
-    dimensions: '6.2 x 0.9 x 9.3 inches',
-    publishDate: 'October 16, 2018',
-    reviewsData: [
-      { id: 101, user: 'Somchai T.', rating: 5, date: '2025-01-15', comment: 'สุดยอดหนังสือเปลี่ยนชีวิต ควรอ่าน!' },
-      { id: 102, user: 'Suda W.', rating: 4, date: '2025-01-10', comment: 'อ่านง่าย นำไปใช้ได้จริง' }
-    ]
-  },
-  { 
-    id: 2, 
-    title: 'Sapiens', 
-    author: 'Yuval Noah Harari', 
-    price: 28.50, 
-    category: 'History', 
-    bookType: 'ปกแข็ง', 
-    publisher: 'Global Books', 
-    rating: 4.8, 
-    reviews: '12k', 
-    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400&auto=format&fit=crop', 
-    desc: '100,000 years ago, at least six human species inhabited the earth. Today there is just one. Us. Homo sapiens. How did our species succeed in the battle for dominance?',
-    pages: 464,
-    isbn: '978-0062316097',
-    dimensions: '6.1 x 1.4 x 9.2 inches',
-    publishDate: 'February 10, 2015',
-    reviewsData: []
-  },
-  { 
-    id: 3, 
-    title: 'Thinking, Fast and Slow', 
-    author: 'Daniel Kahneman', 
-    price: 22.00, 
-    category: 'Science', 
-    bookType: 'ปกอ่อน', 
-    publisher: 'Global Books', 
-    rating: 4.7, 
-    reviews: '8k', 
-    image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=400&auto=format&fit=crop&sig=3', 
-    desc: 'The phenomenal New York Times Bestseller by Nobel Prize-winner Daniel Kahneman, Thinking, Fast and Slow offers a whole new look at the way our minds work, and how we make decisions.',
-    pages: 499,
-    isbn: '978-0374533557',
-    dimensions: '5.5 x 1.2 x 8.2 inches',
-    publishDate: 'April 2, 2013',
-    reviewsData: []
-  },
-  { 
-    id: 4, 
-    title: 'The Psychology of Money', 
-    author: 'Morgan Housel', 
-    price: 18.99, 
-    category: 'Business', 
-    bookType: 'ปกอ่อน', 
-    publisher: 'Mindset Press', 
-    rating: 4.9, 
-    reviews: '10k', 
-    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400&auto=format&fit=crop&sig=4', 
-    desc: 'Doing well with money isn’t necessarily about what you know. It’s about how you behave. And behavior is hard to teach, even to really smart people.',
-    pages: 252,
-    isbn: '978-0857197689',
-    dimensions: '5.5 x 0.6 x 8.5 inches',
-    publishDate: 'September 8, 2020',
-    reviewsData: []
-  },
-  { 
-    id: 5, 
-    title: 'Clean Code', 
-    author: 'Robert C. Martin', 
-    price: 35.00, 
-    category: 'Technology', 
-    bookType: 'E-Book', 
-    publisher: 'Chapter Publishing', 
-    rating: 4.8, 
-    reviews: '5k', 
-    image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=400&auto=format&fit=crop&sig=5', 
-    desc: 'Even bad code can function. But if code isn’t clean, it can bring a development organization to its knees. Every year, countless hours and significant resources are lost because of poorly written code.',
-    pages: 464,
-    isbn: '978-0132350884',
-    dimensions: '7 x 1.1 x 9.1 inches',
-    publishDate: 'August 11, 2008',
-    sampleUrl: '/samples/clean-code.pdf',
-    reviewsData: [
-      { id: 103, user: 'DevGuy', rating: 5, date: '2025-02-01', comment: 'A must read for all developers.' }
-    ]
-  },
-  { 
-    id: 6, 
-    title: 'The Design of Everyday Things', 
-    author: 'Don Norman', 
-    price: 24.50, 
-    category: 'Design', 
-    bookType: 'ปกอ่อน', 
-    publisher: 'Chapter Publishing', 
-    rating: 4.6, 
-    reviews: '3k', 
-    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400&auto=format&fit=crop&sig=6', 
-    desc: 'Even the smartest among us can feel inept as we fail to figure out which light switch or oven burner to turn on, or whether to push, pull, or slide a door.',
-    pages: 368,
-    isbn: '978-0465050659',
-    dimensions: '5.5 x 1 x 8.2 inches',
-    publishDate: 'November 5, 2013',
-    reviewsData: []
-  },
-  { 
-    id: 7, 
-    title: 'Dune', 
-    author: 'Frank Herbert', 
-    price: 14.99, 
-    category: 'Fiction', 
-    bookType: 'ปกแข็ง', 
-    publisher: 'Global Books', 
-    rating: 4.9, 
-    reviews: '20k', 
-    image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=400&auto=format&fit=crop&sig=7', 
-    desc: 'Set on the desert planet Arrakis, Dune is the story of the boy Paul Atreides, heir to a noble family tasked with ruling an inhospitable world where the only thing of value is the "spice" melange.',
-    pages: 896,
-    isbn: '978-0441172719',
-    dimensions: '4.2 x 1.5 x 7.5 inches',
-    publishDate: 'October 1, 1990',
-    reviewsData: []
-  },
-  { 
-    id: 8, 
-    title: 'Meditations', 
-    author: 'Marcus Aurelius', 
-    price: 12.50, 
-    category: 'Philosophy', 
-    bookType: 'E-Book', 
-    publisher: 'Mindset Press', 
-    rating: 4.7, 
-    reviews: '6k', 
-    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400&auto=format&fit=crop&sig=8', 
-    desc: 'Written in Greek by the only Roman emperor who was also a philosopher, without any intention of publication, the Meditations of Marcus Aurelius offer a remarkable series of challenging spiritual reflections.',
-    pages: 254,
-    isbn: '978-0812968255',
-    dimensions: '5.2 x 0.6 x 8 inches',
-    publishDate: 'May 6, 2003',
-    sampleUrl: '/samples/meditations.pdf',
-    reviewsData: []
-  },
-  { 
-    id: 9, 
-    title: 'ผ่าพิภพไททัน (Attack on Titan) Vol. 1', 
-    author: 'Hajime Isayama', 
-    price: 8.50, 
-    category: 'การ์ตูน (Manga)', 
-    bookType: 'E-Book', 
-    publisher: 'Comic World', 
-    rating: 4.9, 
-    reviews: '50k', 
-    image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=400&auto=format&fit=crop&sig=9', 
-    desc: 'หลายร้อยปีก่อน มนุษย์เกือบจะสูญพันธุ์เพราะเผ่าพันธุ์ไททันที่กินมนุษย์เป็นอาหาร มนุษย์ที่เหลือรอดได้สร้างกำแพงขนาดมหึมาขึ้นมาเพื่อป้องกันตนเอง...',
-    pages: 192,
-    isbn: '978-1612620244',
-    dimensions: '5 x 0.6 x 7.5 inches',
-    publishDate: 'June 19, 2012',
-    sampleUrl: '/samples/aot-vol1.pdf',
-    chapters: [
-      { number: 1, title: 'แด่เธอในอีก 2000 ปีให้หลัง', isFree: true },
-      { number: 2, title: 'วันนั้น', isFree: true },
-      { number: 3, title: 'คืนสู่ความสิ้นหวัง', isFree: false },
-      { number: 4, title: 'แสงสลัวในความมืด', isFree: false }
-    ],
-    reviewsData: [
-      { id: 104, user: 'Otaku123', rating: 5, date: '2025-03-10', comment: 'ลายเส้นช่วงแรกอาจจะยังไม่เข้าที่ แต่เนื้อเรื่องเข้มข้นมาก' }
-    ]
-  },
-  { 
-    id: 10, 
-    title: 'วันพีซ (One Piece) Vol. 100', 
-    author: 'Eiichiro Oda', 
-    price: 9.00, 
-    category: 'การ์ตูน (Manga)', 
-    bookType: 'ปกอ่อน', 
-    publisher: 'Comic World', 
-    rating: 5.0, 
-    reviews: '100k', 
-    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400&auto=format&fit=crop&sig=10', 
-    desc: 'เพื่อที่จะกลายเป็นจ้าวแห่งโจรสลัด ลูฟี่และพรรคพวกได้มุ่งหน้าสู่แกรนด์ไลน์ การผจญภัยอันยิ่งใหญ่ได้เริ่มต้นขึ้นแล้ว...',
-    pages: 208,
-    isbn: '978-1974728481',
-    dimensions: '5 x 0.6 x 7.5 inches',
-    publishDate: 'August 2, 2022',
-    chapters: [
-      { number: 1005, title: 'เด็กปีศาจ', isFree: false },
-      { number: 1006, title: 'วีรบุรุษจอมโจร', isFree: false },
-      { number: 1007, title: 'ทานูกิซัง', isFree: false },
-      { number: 1008, title: 'อาชูร่า โดจิ โจรภูเขาแห่งอาตามะ', isFree: false }
-    ],
-    reviewsData: [
-      { id: 105, user: 'PirateKing', rating: 5, date: '2025-03-12', comment: 'เล่ม 100 แล้วก็ยังสนุกไม่เปลี่ยน!' }
-    ]
-  }
-];
+const getDefaultStock = (book) => {
+  const base = (Number(book.id) * 7) % 26;
+  return base;
+};
+
+const getStockStatus = (stock) => {
+  if (stock <= 0) return 'Out of Stock';
+  if (stock <= 5) return 'Low Stock';
+  return 'In Stock';
+};
+
+const getFallbackReviews = (book) => {
+  const title = book.title || 'หนังสือ';
+  const category = book.category || 'ทั่วไป';
+  return [
+    {
+      id: 1,
+      user: 'นักอ่านชื่นชอบ',
+      rating: 5,
+      comment: `"${title}" น่าสนใจและมีคุณค่าทางความรู้ในหมวด${category}`,
+    },
+    {
+      id: 2,
+      user: 'เด็กนักอ่าน',
+      rating: 4,
+      comment: "อ่านแล้วเพลิดเพลินและได้ความรู้มากมาย",
+    },
+    {
+      id: 3,
+      user: 'ชอบหนังสือ',
+      rating: 5,
+      comment: "เนื้อหาดีมากและภาพประกอบสวยงาม",
+    },
+  ];
+};
+
+const normalizeBooks = (data) =>
+  data.map((book) => {
+    const stock = Number.isFinite(Number(book.stock)) ? Number(book.stock) : getDefaultStock(book);
+
+    return {
+      ...book,
+      stock,
+      stockStatus: getStockStatus(stock),
+      desc: book.desc || book.description || 'ไม่มีรายละเอียดเพิ่มเติม',
+      isbn: book.isbn || 'ไม่ระบุ',
+      dimensions: book.dimensions || 'ไม่ระบุ',
+      reviewsData: Array.isArray(book.reviewsData) && book.reviewsData.length > 0 ? book.reviewsData : getFallbackReviews(book),
+      chapters: book.chapters || (book.sample ? [{ number: 1, title: 'ตัวอย่างตอนที่ 1', isFree: true }] : []),
+    };
+  });
+
+export const books = normalizeBooks(booksData);
+export const categories = ['All', ...new Set(books.map((book) => book.category))];
+export const bookTypes = ['All', 'ปกแข็ง', 'E-Book', 'กาตูนแบบตอน'];
+export const publishers = ['All', ...new Set(books.map((book) => book.publisher))];
+
+export const getFilteredBooks = ({
+  booksData = books,
+  searchQuery = '',
+  selectedCategory = 'All',
+  selectedBookTypes = [],
+  selectedPublisher = 'All',
+  priceMin = '',
+  priceMax = '',
+}) => {
+  const normalizedQuery = (searchQuery || '').trim().toLowerCase();
+  const minPrice = Number(priceMin);
+  const maxPrice = Number(priceMax);
+  const hasMinPrice = priceMin !== '' && !Number.isNaN(minPrice);
+  const hasMaxPrice = priceMax !== '' && !Number.isNaN(maxPrice);
+
+  return booksData.filter((book) => {
+    const price = Number(book.price);
+    const matchesCategory = selectedCategory === 'All' || book.category === selectedCategory;
+    const matchesBookType = selectedBookTypes.length === 0 || selectedBookTypes.includes(book.bookType);
+    const matchesPublisher = selectedPublisher === 'All' || book.publisher === selectedPublisher;
+    const matchesSearch = !normalizedQuery || book.title.toLowerCase().includes(normalizedQuery) || book.author.toLowerCase().includes(normalizedQuery);
+    const matchesPrice = (!hasMinPrice || price >= minPrice) && (!hasMaxPrice || price <= maxPrice);
+
+    return matchesCategory && matchesBookType && matchesPublisher && matchesSearch && matchesPrice;
+  });
+};

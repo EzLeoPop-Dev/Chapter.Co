@@ -1,9 +1,23 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+
+const EMPTY_BOOK_FORM = {
+  title: '',
+  author: '',
+  publisher: '',
+  category: '',
+  isbn: '',
+  pages: '',
+  description: '',
+  price: '',
+  stock: '',
+};
 
 export default function AdminCategoriesPage() {
   const [activeTab, setActiveTab] = useState('categories');
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [bookSearchQuery, setBookSearchQuery] = useState('');
+  const [bookCategoryFilter, setBookCategoryFilter] = useState('ทั้งหมด');
   
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState(null);
@@ -12,9 +26,7 @@ export default function AdminCategoriesPage() {
 
   const [showAddBookModal, setShowAddBookModal] = useState(false);
   const [editingBookId, setEditingBookId] = useState(null);
-  const [bookFormData, setBookFormData] = useState({
-    title: '', author: '', publisher: '', category: '', isbn: '', pages: '', description: '', price: '', stock: ''
-  });
+  const [bookFormData, setBookFormData] = useState(EMPTY_BOOK_FORM);
 
   const [selectedPublisher, setSelectedPublisher] = useState(null);
   const [showAddPublisherModal, setShowAddPublisherModal] = useState(false);
@@ -22,24 +34,63 @@ export default function AdminCategoriesPage() {
   const [newPublisherName, setNewPublisherName] = useState('');
   const [selectedBooksForPublisher, setSelectedBooksForPublisher] = useState([]);
 
-  const [categories, setCategories] = useState([
-    { id: 1, name: 'นิยายแปลจีน', count: 145 },
-    { id: 2, name: 'วรรณกรรมเยาวชน', count: 89 },
-    { id: 3, name: 'พัฒนาตนเอง', count: 210 },
-  ]);
+  const [books, setBooks] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [publishers, setPublishers] = useState([]);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncError, setSyncError] = useState('');
 
-  const [publishers, setPublishers] = useState([
-    { id: 1, name: 'Phoenix', count: 56 },
-    { id: 2, name: 'Nanmeebooks', count: 120 },
-    { id: 3, name: 'WeLearn', count: 85 },
-  ]);
+  useEffect(() => {
+    const loadCatalog = async () => {
+      setIsSyncing(true);
+      setSyncError('');
+      try {
+        const response = await fetch('/api/admin/catalog');
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'โหลดข้อมูลไม่สำเร็จ');
+        }
 
-  const [books, setBooks] = useState([
-    { id: 'BK-001', title: 'ปรมาจารย์ลัทธิมาร เล่ม 1', price: 250, stock: 45, status: 'In Stock', category: 'นิยายแปลจีน', publisher: 'Phoenix' },
-    { id: 'BK-002', title: 'แฮร์รี่ พอตเตอร์ เล่ม 1', price: 395, stock: 12, status: 'Low Stock', category: 'วรรณกรรมเยาวชน', publisher: 'Nanmeebooks' },
-    { id: 'BK-003', title: 'คิดแบบยิว', price: 180, stock: 0, status: 'Out of Stock', category: 'พัฒนาตนเอง', publisher: 'WeLearn' },
-    { id: 'BK-004', title: 'สวรรค์ประทานพร เล่ม 1', price: 300, stock: 50, status: 'In Stock', category: 'นิยายแปลจีน', publisher: 'Phoenix' },
-  ]);
+        setBooks(data.books || []);
+        setCategories(data.categories || []);
+        setPublishers(data.publishers || []);
+      } catch (error) {
+        console.error('Load catalog error:', error);
+        setSyncError(error.message || 'โหลดข้อมูลไม่สำเร็จ');
+      } finally {
+        setIsSyncing(false);
+      }
+    };
+
+    loadCatalog();
+  }, []);
+
+  const runCatalogAction = async (action, payload) => {
+    setIsSyncing(true);
+    setSyncError('');
+    try {
+      const response = await fetch('/api/admin/catalog', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, payload }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'อัปเดตข้อมูลไม่สำเร็จ');
+      }
+
+      setBooks(data.books || []);
+      setCategories(data.categories || []);
+      setPublishers(data.publishers || []);
+      return true;
+    } catch (error) {
+      console.error('Catalog action error:', error);
+      setSyncError(error.message || 'อัปเดตข้อมูลไม่สำเร็จ');
+      return false;
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -52,6 +103,36 @@ export default function AdminCategoriesPage() {
 
   const booksInCategory = selectedCategory ? books.filter(b => b.category === selectedCategory.name) : [];
   const booksInPublisher = selectedPublisher ? books.filter(b => b.publisher === selectedPublisher.name) : [];
+  const filteredBooks = useMemo(() => {
+    const normalizedQuery = bookSearchQuery.trim().toLowerCase();
+    return books.filter((book) => {
+      const matchesQuery =
+        !normalizedQuery ||
+        book.title.toLowerCase().includes(normalizedQuery) ||
+        String(book.id).toLowerCase().includes(normalizedQuery) ||
+        (book.author || '').toLowerCase().includes(normalizedQuery);
+      const matchesCategory = bookCategoryFilter === 'ทั้งหมด' || book.category === bookCategoryFilter;
+      return matchesQuery && matchesCategory;
+    });
+  }, [books, bookSearchQuery, bookCategoryFilter]);
+
+  const openBookEditor = (book) => {
+    setEditingBookId(book.id);
+    setBookFormData({
+      title: book.title || '',
+      author: book.author || '',
+      publisher: book.publisher || '',
+      category: book.category || '',
+      isbn: book.isbn || '',
+      pages: book.pages || '',
+      description: book.description || '',
+      price: book.price || '',
+      stock: book.stock || '',
+    });
+    setSelectedCategory(null);
+    setSelectedPublisher(null);
+    setShowAddBookModal(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -62,6 +143,12 @@ export default function AdminCategoriesPage() {
           <p className="text-[#a09c92] text-sm">เพิ่ม แก้ไข หรือลบหนังสือ หมวดหมู่ และสำนักพิมพ์ในระบบ</p>
         </div>
       </div>
+
+      {(isSyncing || syncError) && (
+        <div className={`rounded-2xl border px-4 py-3 text-sm ${syncError ? 'border-red-200 bg-red-50 text-red-600' : 'border-[#e6e5e0] bg-white/70 text-[#a09c92]'}`}>
+          {syncError ? syncError : 'กำลังอัปเดตข้อมูลผ่าน API...'}
+        </div>
+      )}
 
       <div className="bg-white/70 backdrop-blur-xl rounded-[2rem] shadow-sm border border-white/80 overflow-hidden">
         {/* Tabs */}
@@ -123,6 +210,20 @@ export default function AdminCategoriesPage() {
                         >
                           แก้ไข
                         </button>
+                        <button
+                          className="text-xs p-1.5 bg-red-50 hover:bg-red-500 text-red-500 hover:text-white rounded-lg"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            const ok = window.confirm(`ลบหมวดหมู่ "${cat.name}" ? หนังสือในหมวดนี้จะถูกย้ายไป "ไม่มีหมวดหมู่"`);
+                            if (!ok) return;
+                            await runCatalogAction('category:delete', { name: cat.name });
+                            if (selectedCategory?.id === cat.id) {
+                              setSelectedCategory(null);
+                            }
+                          }}
+                        >
+                          ลบ
+                        </button>
                       </div>
                     </div>
                     <span className="text-sm text-[#a09c92] font-medium">{cat.count} เล่มในหมวดนี้</span>
@@ -171,6 +272,20 @@ export default function AdminCategoriesPage() {
                         >
                           แก้ไข
                         </button>
+                        <button
+                          className="text-xs p-1.5 bg-red-50 hover:bg-red-500 text-red-500 hover:text-white rounded-lg"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            const ok = window.confirm(`ลบสำนักพิมพ์ "${pub.name}" ? หนังสือของสำนักพิมพ์นี้จะถูกย้ายไป "ไม่มีสำนักพิมพ์"`);
+                            if (!ok) return;
+                            await runCatalogAction('publisher:delete', { name: pub.name });
+                            if (selectedPublisher?.id === pub.id) {
+                              setSelectedPublisher(null);
+                            }
+                          }}
+                        >
+                          ลบ
+                        </button>
                       </div>
                     </div>
                     <span className="text-sm text-[#a09c92] font-medium">{pub.count} เล่ม</span>
@@ -185,16 +300,26 @@ export default function AdminCategoriesPage() {
             <div>
               <div className="flex justify-between items-center mb-6">
                 <div className="flex gap-2">
-                  <input type="text" placeholder="ค้นหาชื่อหนังสือ..." className="px-4 py-2 border border-[#e6e5e0] rounded-xl focus:outline-none focus:border-primary text-sm w-64" />
-                  <select className="px-4 py-2 border border-[#e6e5e0] rounded-xl focus:outline-none text-sm bg-white">
-                    <option>ทุกหมวดหมู่</option>
+                  <input
+                    type="text"
+                    value={bookSearchQuery}
+                    onChange={(e) => setBookSearchQuery(e.target.value)}
+                    placeholder="ค้นหาชื่อหนังสือ / รหัส / ผู้แต่ง..."
+                    className="px-4 py-2 border border-[#e6e5e0] rounded-xl focus:outline-none focus:border-primary text-sm w-64"
+                  />
+                  <select
+                    value={bookCategoryFilter}
+                    onChange={(e) => setBookCategoryFilter(e.target.value)}
+                    className="px-4 py-2 border border-[#e6e5e0] rounded-xl focus:outline-none text-sm bg-white"
+                  >
+                    <option value="ทั้งหมด">ทุกหมวดหมู่</option>
                     {categories.map(c => <option key={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <button 
                   onClick={() => {
                     setEditingBookId(null);
-                    setBookFormData({ title: '', author: '', publisher: '', category: '', isbn: '', pages: '', description: '', price: '', stock: '' });
+                    setBookFormData(EMPTY_BOOK_FORM);
                     setShowAddBookModal(true);
                   }}
                   className="text-sm font-bold text-white bg-primary hover:bg-[#b07515] px-4 py-2 rounded-xl transition-colors shadow-sm"
@@ -215,13 +340,13 @@ export default function AdminCategoriesPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#e6e5e0]">
-                    {books.map((book) => (
+                    {filteredBooks.map((book) => (
                       <tr key={book.id} className="hover:bg-white/50 transition-colors">
                         <td className="py-4 px-4 text-sm font-medium text-[#a09c92]">{book.id}</td>
                         <td className="py-4 px-4 font-bold text-[#1A1A1A]">{book.title}</td>
                         <td className="py-4 px-4 text-sm text-[#1A1A1A]">{book.category}</td>
                         <td className="py-4 px-4 text-sm text-[#1A1A1A]">{book.publisher}</td>
-                        <td className="py-4 px-4 text-sm font-bold text-[#C8861A] text-right">฿{book.price}</td>
+                        <td className="py-4 px-4 text-sm font-bold text-[#C8861A] text-right">฿{Number(book.price).toLocaleString('th-TH')}</td>
                         <td className="py-4 px-4 text-right space-x-2">
                           <button 
                             onClick={() => {
@@ -243,10 +368,24 @@ export default function AdminCategoriesPage() {
                           >
                             แก้ไข
                           </button>
-                          <button className="px-3 py-1.5 text-xs font-bold bg-red-50 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-colors">ลบ</button>
+                          <button
+                            onClick={async () => {
+                              await runCatalogAction('book:delete', { id: book.id });
+                            }}
+                            className="px-3 py-1.5 text-xs font-bold bg-red-50 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-colors"
+                          >
+                            ลบ
+                          </button>
                         </td>
                       </tr>
                     ))}
+                    {filteredBooks.length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="py-10 text-center text-sm text-[#a09c92]">
+                          ไม่พบหนังสือตามเงื่อนไขที่เลือก
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -291,7 +430,10 @@ export default function AdminCategoriesPage() {
                           </div>
                         </div>
                       </div>
-                      <button className="px-3 py-1.5 text-xs font-bold bg-[#F2EEE7] hover:bg-gray-200 text-[#1A1A1A] rounded-lg transition-colors">
+                      <button
+                        onClick={() => openBookEditor(book)}
+                        className="px-3 py-1.5 text-xs font-bold bg-[#F2EEE7] hover:bg-gray-200 text-[#1A1A1A] rounded-lg transition-colors"
+                      >
                         จัดการ
                       </button>
                     </div>
@@ -379,26 +521,26 @@ export default function AdminCategoriesPage() {
                 ยกเลิก
               </button>
               <button 
-                onClick={() => {
-                  if (newCategoryName) {
-                    if (editingCategoryId) {
-                      const oldCat = categories.find(c => c.id === editingCategoryId);
-                      setCategories(categories.map(c => c.id === editingCategoryId ? { ...c, name: newCategoryName, count: selectedBooksForCategory.length } : c));
-                      setBooks(books.map(b => {
-                        if (selectedBooksForCategory.includes(b.id)) {
-                          return { ...b, category: newCategoryName };
-                        } else if (b.category === oldCat?.name) {
-                          return { ...b, category: 'ไม่มีหมวดหมู่' };
-                        }
-                        return b;
-                      }));
-                    } else {
-                      const newId = categories.length > 0 ? Math.max(...categories.map(c => c.id)) + 1 : 1;
-                      setCategories([...categories, { id: newId, name: newCategoryName, count: selectedBooksForCategory.length }]);
-                      if (selectedBooksForCategory.length > 0) {
-                        setBooks(books.map(b => selectedBooksForCategory.includes(b.id) ? { ...b, category: newCategoryName } : b));
-                      }
-                    }
+                onClick={async () => {
+                  const normalizedName = newCategoryName.trim();
+                  if (!normalizedName) return;
+
+                  let success = false;
+                  if (editingCategoryId) {
+                    const oldCat = categories.find((c) => c.id === editingCategoryId);
+                    success = await runCatalogAction('category:update', {
+                      oldName: oldCat?.name,
+                      newName: normalizedName,
+                      bookIds: selectedBooksForCategory,
+                    });
+                  } else {
+                    success = await runCatalogAction('category:create', {
+                      name: normalizedName,
+                      bookIds: selectedBooksForCategory,
+                    });
+                  }
+
+                  if (success) {
                     setShowAddCategoryModal(false);
                     setEditingCategoryId(null);
                     setNewCategoryName('');
@@ -495,19 +637,25 @@ export default function AdminCategoriesPage() {
                 ยกเลิก
               </button>
               <button 
-                onClick={() => {
-                  if (bookFormData.title && bookFormData.price) {
-                    if (editingBookId) {
-                      setBooks(books.map(b => b.id === editingBookId ? { ...b, ...bookFormData, status: Number(bookFormData.stock) > 0 ? 'In Stock' : 'Out of Stock' } : b));
-                    } else {
-                      const newId = `BK-${String(books.length + 1).padStart(3, '0')}`;
-                      setBooks([...books, { 
-                        id: newId, 
-                        ...bookFormData, 
-                        status: Number(bookFormData.stock) > 0 ? 'In Stock' : 'Out of Stock'
-                      }]);
-                    }
+                onClick={async () => {
+                  if (!(bookFormData.title && bookFormData.price)) return;
+
+                  let success = false;
+                  if (editingBookId) {
+                    success = await runCatalogAction('book:update', {
+                      id: editingBookId,
+                      book: bookFormData,
+                    });
+                  } else {
+                    success = await runCatalogAction('book:create', {
+                      book: bookFormData,
+                    });
+                  }
+
+                  if (success) {
                     setShowAddBookModal(false);
+                    setBookFormData(EMPTY_BOOK_FORM);
+                    setEditingBookId(null);
                   }
                 }} 
                 className={`px-5 py-2.5 rounded-xl font-bold transition-colors text-sm ${(bookFormData.title && bookFormData.price) ? 'bg-primary hover:bg-[#b07515] text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
@@ -556,7 +704,10 @@ export default function AdminCategoriesPage() {
                           </div>
                         </div>
                       </div>
-                      <button className="px-3 py-1.5 text-xs font-bold bg-[#F2EEE7] hover:bg-gray-200 text-[#1A1A1A] rounded-lg transition-colors">
+                      <button
+                        onClick={() => openBookEditor(book)}
+                        className="px-3 py-1.5 text-xs font-bold bg-[#F2EEE7] hover:bg-gray-200 text-[#1A1A1A] rounded-lg transition-colors"
+                      >
                         จัดการ
                       </button>
                     </div>
@@ -644,26 +795,26 @@ export default function AdminCategoriesPage() {
                 ยกเลิก
               </button>
               <button 
-                onClick={() => {
-                  if (newPublisherName) {
-                    if (editingPublisherId) {
-                      const oldPub = publishers.find(p => p.id === editingPublisherId);
-                      setPublishers(publishers.map(p => p.id === editingPublisherId ? { ...p, name: newPublisherName, count: selectedBooksForPublisher.length } : p));
-                      setBooks(books.map(b => {
-                        if (selectedBooksForPublisher.includes(b.id)) {
-                          return { ...b, publisher: newPublisherName };
-                        } else if (b.publisher === oldPub?.name) {
-                          return { ...b, publisher: 'ไม่มีสำนักพิมพ์' };
-                        }
-                        return b;
-                      }));
-                    } else {
-                      const newId = publishers.length > 0 ? Math.max(...publishers.map(p => p.id)) + 1 : 1;
-                      setPublishers([...publishers, { id: newId, name: newPublisherName, count: selectedBooksForPublisher.length }]);
-                      if (selectedBooksForPublisher.length > 0) {
-                        setBooks(books.map(b => selectedBooksForPublisher.includes(b.id) ? { ...b, publisher: newPublisherName } : b));
-                      }
-                    }
+                onClick={async () => {
+                  const normalizedName = newPublisherName.trim();
+                  if (!normalizedName) return;
+
+                  let success = false;
+                  if (editingPublisherId) {
+                    const oldPub = publishers.find((p) => p.id === editingPublisherId);
+                    success = await runCatalogAction('publisher:update', {
+                      oldName: oldPub?.name,
+                      newName: normalizedName,
+                      bookIds: selectedBooksForPublisher,
+                    });
+                  } else {
+                    success = await runCatalogAction('publisher:create', {
+                      name: normalizedName,
+                      bookIds: selectedBooksForPublisher,
+                    });
+                  }
+
+                  if (success) {
                     setShowAddPublisherModal(false);
                     setEditingPublisherId(null);
                     setNewPublisherName('');

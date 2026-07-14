@@ -1,13 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export default function CategorySidebar({ 
   categories, selectedCategory, setSelectedCategory,
   bookTypes, selectedBookTypes, setSelectedBookTypes,
-  publishers, selectedPublisher, setSelectedPublisher
+  publishers, selectedPublisher, setSelectedPublisher,
+  priceMin, setPriceMin,
+  priceMax, setPriceMax
 }) {
-  const [priceMin, setPriceMin] = useState('');
-  const [priceMax, setPriceMax] = useState('');
   const [isCategoryOpen, setIsCategoryOpen] = useState(true);
+  const [priceMinDraft, setPriceMinDraft] = useState(priceMin);
+  const [priceMaxDraft, setPriceMaxDraft] = useState(priceMax);
+
+  useEffect(() => {
+    setPriceMinDraft(priceMin);
+  }, [priceMin]);
+
+  useEffect(() => {
+    setPriceMaxDraft(priceMax);
+  }, [priceMax]);
 
   // We'll use the actual `categories` prop to render the list instead of mocked data
 
@@ -34,16 +44,18 @@ export default function CategorySidebar({
     setSelectedPublisher('All');
     setPriceMin('');
     setPriceMax('');
+    setPriceMinDraft('');
+    setPriceMaxDraft('');
   };
 
   return (
-    <aside className="w-64 flex-shrink-0 hidden lg:flex flex-col h-full bg-[#FAFAF8] border border-[#e6e5e0] rounded-2xl shadow-sm mr-6 overflow-hidden">
+    <aside className="w-64 shrink-0 hidden lg:flex flex-col h-full bg-[#FAFAF8] border border-[#e6e5e0] rounded-2xl shadow-sm mr-6 overflow-hidden">
       <div className="p-5">
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-[20px] font-black text-[#1A1A1A]">ตัวกรอง</h2>
           <button onClick={clearAll} className="text-[12px] font-medium text-[#807d72] hover:text-primary underline">ล้างทั้งหมด</button>
         </div>
-        <div className="w-full h-[1px] bg-[#e6e5e0] mb-5"></div>
+        <div className="w-full h-px bg-[#e6e5e0] mb-5"></div>
         
         {/* Category Filter (Accordion Style) */}
         <div className="mb-6">
@@ -81,14 +93,14 @@ export default function CategorySidebar({
           )}
         </div>
 
-        <div className="w-full h-[1px] bg-[#e6e5e0] mb-5"></div>
+        <div className="w-full h-px bg-[#e6e5e0] mb-5"></div>
 
         {/* Book Type Filter */}
         <div className="mb-6">
           <h3 className="font-bold text-[14px] text-[#1A1A1A] mb-3">ประเภท</h3>
           <div className="flex flex-wrap gap-2">
-            {['รูปเล่ม', 'E-book'].map((type, idx) => {
-              const isSelected = selectedBookTypes.includes(type) || (selectedBookTypes.length === 0 && type === 'รูปเล่ม'); // Mocking image state
+            {bookTypes.filter((type) => type !== 'All').map((type) => {
+              const isSelected = selectedBookTypes.includes(type);
               return (
                 <button
                   key={type}
@@ -102,34 +114,42 @@ export default function CategorySidebar({
           </div>
         </div>
 
-        <div className="w-full h-[1px] bg-[#e6e5e0] mb-5"></div>
+        <div className="w-full h-px bg-[#e6e5e0] mb-5"></div>
 
         {/* Price Filter */}
         <div className="mb-6">
           <h3 className="font-bold text-[14px] text-[#1A1A1A] mb-3">ช่วงราคา</h3>
           <div className="flex items-center justify-between gap-2 mb-3">
             <input 
-              type="text" 
+              type="number"
+              min="0"
               placeholder="ต่ำสุด" 
-              value={priceMin}
-              onChange={(e) => setPriceMin(e.target.value)}
+              value={priceMinDraft}
+              onChange={(e) => setPriceMinDraft(e.target.value)}
               className="w-full border border-[#e6e5e0] rounded-lg px-2 py-1.5 text-[12px] text-center focus:outline-none focus:border-[#C8861A] focus:ring-1 focus:ring-[#C8861A]"
             />
             <span className="text-[#a09c92] text-[12px]">-</span>
             <input 
-              type="text" 
+              type="number"
+              min="0"
               placeholder="สูงสุด" 
-              value={priceMax}
-              onChange={(e) => setPriceMax(e.target.value)}
+              value={priceMaxDraft}
+              onChange={(e) => setPriceMaxDraft(e.target.value)}
               className="w-full border border-[#e6e5e0] rounded-lg px-2 py-1.5 text-[12px] text-center focus:outline-none focus:border-[#C8861A] focus:ring-1 focus:ring-[#C8861A]"
             />
           </div>
-          <button className="w-full bg-[#E8E6E1] text-[#1A1A1A] font-bold text-[13px] py-2 rounded-lg hover:bg-primary hover:text-white transition-colors">
-            ประยุกต์ใช้
+          <button
+            onClick={() => {
+              setPriceMin(priceMinDraft);
+              setPriceMax(priceMaxDraft);
+            }}
+            className="w-full bg-[#E8E6E1] text-[#1A1A1A] font-bold text-[13px] py-2 rounded-lg hover:bg-primary hover:text-white transition-colors"
+          >
+            ยืนยันช่วงราคา
           </button>
         </div>
 
-        <div className="w-full h-[1px] bg-[#e6e5e0]"></div>
+        <div className="w-full h-px bg-[#e6e5e0]"></div>
 
       </div>
     </aside>

@@ -7,7 +7,9 @@ export default function ShopHeader({
   searchQuery, setSearchQuery, 
   categories, selectedCategory, setSelectedCategory,
   bookTypes, selectedBookTypes, setSelectedBookTypes,
-  publishers, selectedPublisher, setSelectedPublisher
+  publishers, selectedPublisher, setSelectedPublisher,
+  priceMin, setPriceMin,
+  priceMax, setPriceMax
 }) {
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
@@ -54,6 +56,25 @@ export default function ShopHeader({
           onChange={setSelectedPublisher}
           placeholder="ทุกสำนักพิมพ์"
         />
+
+        <div className="grid grid-cols-2 gap-3">
+          <input
+            type="number"
+            min="0"
+            value={priceMin}
+            onChange={(e) => setPriceMin(e.target.value)}
+            placeholder="ราคาต่ำสุด"
+            className="w-full px-4 py-3 bg-white/80 border border-white rounded-2xl text-[#1A1A1A] font-medium placeholder-[#a09c92] focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <input
+            type="number"
+            min="0"
+            value={priceMax}
+            onChange={(e) => setPriceMax(e.target.value)}
+            placeholder="ราคาสูงสุด"
+            className="w-full px-4 py-3 bg-white/80 border border-white rounded-2xl text-[#1A1A1A] font-medium placeholder-[#a09c92] focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
       </div>
     </div>
   );
