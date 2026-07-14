@@ -1,27 +1,74 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import { books } from '../../data/books';
 
+const CART_STORAGE_KEY = 'chapter-cart-items';
+const initialCartItems = [
+  { ...books[0], qty: 1 },
+  { ...books[8], qty: 2 }
+];
+
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState([
-    { ...books[0], qty: 1 },
-    { ...books[8], qty: 2 }
-  ]);
+  const [cartItems, setCartItems] = useState(() => {
+    if (typeof window === 'undefined') return initialCartItems;
+
+    try {
+      const saved = window.localStorage.getItem(CART_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : initialCartItems;
+    } catch {
+      return initialCartItems;
+    }
+  });
+  const [summary, setSummary] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+    }
+  }, [cartItems]);
+
+  useEffect(() => {
+    const loadSummary = async () => {
+      if (!cartItems.length) {
+        setSummary(null);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/cart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: cartItems.map(({ id, title, price, qty }) => ({ id, title, price, quantity: qty }))
+          })
+        });
+
+        const data = await response.json();
+        if (data?.success) {
+          setSummary(data.summary);
+        }
+      } catch {
+        setSummary(null);
+      }
+    };
+
+    loadSummary();
+  }, [cartItems]);
 
   const updateQty = (id, newQty) => {
     if (newQty < 1) return;
-    setCartItems(cartItems.map(item => item.id === id ? { ...item, qty: newQty } : item));
+    setCartItems((prev) => prev.map((item) => (item.id === id ? { ...item, qty: newQty } : item)));
   };
 
   const removeItem = (id) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
+    setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
-  const shipping = subtotal > 50 ? 0 : 5;
-  const total = subtotal + shipping;
+  const subtotal = summary?.subtotal ?? cartItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
+  const shipping = summary?.shippingFee ?? (subtotal > 50 ? 0 : 5);
+  const total = summary?.total ?? subtotal + shipping;
 
   return (
     <div className="min-h-screen bg-[#F2EEE7] text-[#1A1A1A] font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif] relative selection:bg-[#C8861A] selection:text-white p-4 md:p-8 flex flex-col">
@@ -89,12 +136,18 @@ export default function CartPage() {
             <div className="flex-1">
               <div className="bg-white/80 backdrop-blur-xl border border-white rounded-[2.5rem] p-8 shadow-xl sticky top-8">
                 <h3 className="text-xl font-bold text-[#1A1A1A] mb-6">สรุปคำสั่งซื้อ</h3>
-                
+
                 <div className="space-y-4 text-[15px] font-medium text-[#1A1A1A] mb-6">
                   <div className="flex justify-between">
                     <span>ราคาสินค้า ({cartItems.reduce((a,b)=>a+b.qty,0)} ชิ้น)</span>
                     <span className="font-bold text-[#1A1A1A]">${subtotal.toFixed(2)}</span>
                   </div>
+                  {summary?.discountAmount > 0 && (
+                    <div className="flex justify-between text-[15px] font-medium text-[#1A1A1A]">
+                      <span>ส่วนลด</span>
+                      <span className="font-bold text-green-600">-${summary.discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span>ค่าจัดส่ง</span>
                     <span className="font-bold text-[#1A1A1A]">{shipping === 0 ? 'ฟรี' : `$${shipping.toFixed(2)}`}</span>
