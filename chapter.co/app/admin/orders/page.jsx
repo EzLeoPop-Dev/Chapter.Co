@@ -1,14 +1,90 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 export default function AdminOrdersPage() {
   const [activeTab, setActiveTab] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showSlip, setShowSlip] = useState(false);
-  
   const [shipOrder, setShipOrder] = useState(null);
   const [trackingInput, setTrackingInput] = useState('');
   const [printOrder, setPrintOrder] = useState(null);
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    const loadOrders = async () => {
+      try {
+        const response = await fetch('/api/orders');
+        const data = await response.json();
+        if (data?.success && Array.isArray(data.orders)) {
+          setOrders(data.orders);
+          return;
+        }
+      } catch {}
+
+      if (typeof window !== 'undefined') {
+        try {
+          const raw = window.localStorage.getItem('chapter-admin-orders');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              setOrders(parsed);
+              return;
+            }
+          }
+        } catch {}
+      }
+
+      setOrders([
+        {
+          id: 'ORD-001', customer: 'สมชาย รักการอ่าน', date: '14/07/2026', amount: 450, status: 'รอชำระเงิน',
+          address: '123 ถ.สุขุมวิท คลองเตย กรุงเทพฯ 10110', shippingMethod: 'EMS (ไปรษณีย์ไทย)',
+          items: [{ name: 'แฮร์รี่ พอตเตอร์ เล่ม 1', price: 395, qty: 1 }],
+          subtotal: 395, shippingFee: 55, discount: 0, promo: '-',
+          paymentMethod: 'โอนเงินผ่านธนาคาร', paymentTime: '-'
+        },
+        {
+          id: 'ORD-002', customer: 'วิภาดา ใจดี', date: '14/07/2026', amount: 890, status: 'ตรวจสอบชำระเงิน',
+          address: '45/6 หมู่ 2 ต.บางรัก อ.เมือง จ.เชียงใหม่ 50000', shippingMethod: 'Kerry Express',
+          items: [{ name: 'ปรมาจารย์ลัทธิมาร เล่ม 1', price: 450, qty: 1 }, { name: 'ปรมาจารย์ลัทธิมาร เล่ม 2', price: 450, qty: 1 }],
+          subtotal: 900, shippingFee: 40, discount: 50, promo: 'FLASH50',
+          paymentMethod: 'โอนเงินผ่านธนาคาร (แนบสลิปแล้ว)', paymentTime: '14/07/2026 10:15',
+          slipUrl: 'https://placehold.co/400x600/f2eee7/a09c92?text=Payment+Slip+Mockup'
+        },
+        {
+          id: 'ORD-003', customer: 'ณเดชน์ สุดหล่อ', date: '13/07/2026', amount: 1200, status: 'รอจัดส่ง',
+          address: '88 คอนโดหรู ถ.สาทร กรุงเทพฯ 10120', shippingMethod: 'Kerry Express',
+          items: [{ name: 'Boxset จูจูทสึ ไคเซ็น', price: 1200, qty: 1 }],
+          subtotal: 1200, shippingFee: 0, discount: 0, promo: 'FREESHIP',
+          paymentMethod: 'บัตรเครดิต (ตัดผ่านระบบ)', paymentTime: '13/07/2026 15:30'
+        },
+        {
+          id: 'ORD-004', customer: 'ญาญ่า น่ารัก', date: '12/07/2026', amount: 350, status: 'จัดส่งแล้ว',
+          address: '99/9 ถ.นิมมานเหมินทร์ จ.เชียงใหม่ 50200', shippingMethod: 'EMS (ไปรษณีย์ไทย)',
+          items: [{ name: 'คิดแบบยิว', price: 300, qty: 1 }],
+          subtotal: 300, shippingFee: 50, discount: 0, promo: '-',
+          paymentMethod: 'โอนเงินผ่านธนาคาร', paymentTime: '12/07/2026 09:45',
+          slipUrl: 'https://placehold.co/400x600/f2eee7/a09c92?text=Payment+Slip+Mockup'
+        }
+      ]);
+    };
+
+    loadOrders();
+
+    if (typeof window !== 'undefined') {
+      const handleOrdersUpdated = () => loadOrders();
+      window.addEventListener('chapter-orders-updated', handleOrdersUpdated);
+      window.addEventListener('storage', handleOrdersUpdated);
+      return () => {
+        window.removeEventListener('chapter-orders-updated', handleOrdersUpdated);
+        window.removeEventListener('storage', handleOrdersUpdated);
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !orders.length) return;
+    window.localStorage.setItem('chapter-admin-orders', JSON.stringify(orders));
+  }, [orders]);
 
   React.useEffect(() => {
     if (printOrder) {
@@ -26,41 +102,21 @@ export default function AdminOrdersPage() {
     return () => window.removeEventListener('afterprint', handleAfterPrint);
   }, []);
 
-  const [orders, setOrders] = useState([
-    { 
-      id: 'ORD-001', customer: 'สมชาย รักการอ่าน', date: '14/07/2026', amount: 450, status: 'รอชำระเงิน',
-      address: '123 ถ.สุขุมวิท คลองเตย กรุงเทพฯ 10110', shippingMethod: 'EMS (ไปรษณีย์ไทย)', 
-      items: [{name: 'แฮร์รี่ พอตเตอร์ เล่ม 1', price: 395, qty: 1}], 
-      subtotal: 395, shippingFee: 55, discount: 0, promo: '-', 
-      paymentMethod: 'โอนเงินผ่านธนาคาร', paymentTime: '-' 
-    },
-    { 
-      id: 'ORD-002', customer: 'วิภาดา ใจดี', date: '14/07/2026', amount: 890, status: 'ตรวจสอบชำระเงิน',
-      address: '45/6 หมู่ 2 ต.บางรัก อ.เมือง จ.เชียงใหม่ 50000', shippingMethod: 'Kerry Express', 
-      items: [{name: 'ปรมาจารย์ลัทธิมาร เล่ม 1', price: 450, qty: 1}, {name: 'ปรมาจารย์ลัทธิมาร เล่ม 2', price: 450, qty: 1}], 
-      subtotal: 900, shippingFee: 40, discount: 50, promo: 'FLASH50', 
-      paymentMethod: 'โอนเงินผ่านธนาคาร (แนบสลิปแล้ว)', paymentTime: '14/07/2026 10:15',
-      slipUrl: 'https://placehold.co/400x600/f2eee7/a09c92?text=Payment+Slip+Mockup'
-    },
-    { 
-      id: 'ORD-003', customer: 'ณเดชน์ สุดหล่อ', date: '13/07/2026', amount: 1200, status: 'รอจัดส่ง',
-      address: '88 คอนโดหรู ถ.สาทร กรุงเทพฯ 10120', shippingMethod: 'Kerry Express', 
-      items: [{name: 'Boxset จูจูทสึ ไคเซ็น', price: 1200, qty: 1}], 
-      subtotal: 1200, shippingFee: 0, discount: 0, promo: 'FREESHIP', 
-      paymentMethod: 'บัตรเครดิต (ตัดผ่านระบบ)', paymentTime: '13/07/2026 15:30' 
-    },
-    { 
-      id: 'ORD-004', customer: 'ญาญ่า น่ารัก', date: '12/07/2026', amount: 350, status: 'จัดส่งแล้ว',
-      address: '99/9 ถ.นิมมานเหมินทร์ จ.เชียงใหม่ 50200', shippingMethod: 'EMS (ไปรษณีย์ไทย)', 
-      items: [{name: 'คิดแบบยิว', price: 300, qty: 1}], 
-      subtotal: 300, shippingFee: 50, discount: 0, promo: '-', 
-      paymentMethod: 'โอนเงินผ่านธนาคาร', paymentTime: '12/07/2026 09:45',
-      slipUrl: 'https://placehold.co/400x600/f2eee7/a09c92?text=Payment+Slip+Mockup'
-    },
-  ]);
+  const updateStatus = async (id, newStatus) => {
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, updates: { status: newStatus } })
+      });
+      const data = await response.json();
+      if (data?.success && Array.isArray(data.orders)) {
+        setOrders(data.orders);
+        return;
+      }
+    } catch {}
 
-  const updateStatus = (id, newStatus) => {
-    setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o));
+    setOrders((currentOrders) => currentOrders.map((o) => (o.id === id ? { ...o, status: newStatus } : o)));
   };
 
   const getStatusColor = (status) => {
@@ -118,7 +174,7 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const filteredOrders = activeTab === 'all' ? orders : orders.filter(o => o.status === activeTab);
+  const filteredOrders = useMemo(() => activeTab === 'all' ? orders : orders.filter((o) => o.status === activeTab), [activeTab, orders]);
 
   return (
     <div>
@@ -339,8 +395,23 @@ export default function AdminOrdersPage() {
                   ยกเลิก
                 </button>
                 <button 
-                  onClick={() => {
-                    setOrders(orders.map(o => o.id === selectedOrder.id ? { ...o, status: 'จัดส่งแล้ว', trackingNumber: trackingInput } : o));
+                  onClick={async () => {
+                    const nextTracking = trackingInput.trim();
+                    try {
+                      const response = await fetch('/api/orders', {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: selectedOrder.id, updates: { status: 'จัดส่งแล้ว', trackingNumber: nextTracking } })
+                      });
+                      const data = await response.json();
+                      if (data?.success && Array.isArray(data.orders)) {
+                        setOrders(data.orders);
+                      } else {
+                        setOrders((currentOrders) => currentOrders.map((o) => (o.id === selectedOrder.id ? { ...o, status: 'จัดส่งแล้ว', trackingNumber: nextTracking } : o)));
+                      }
+                    } catch {
+                      setOrders((currentOrders) => currentOrders.map((o) => (o.id === selectedOrder.id ? { ...o, status: 'จัดส่งแล้ว', trackingNumber: nextTracking } : o)));
+                    }
                     setSelectedOrder(null);
                     setTrackingInput('');
                   }} 
