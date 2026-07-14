@@ -182,7 +182,11 @@ export default function CheckoutPage() {
           window.localStorage.removeItem(CART_STORAGE_KEY);
           window.dispatchEvent(new Event('chapter-orders-updated'));
         }
-        router.push('/success');
+        if (selectedPayment === 'promptpay') {
+          router.push('/payment');
+        } else {
+          router.push('/success');
+        }
       } else {
         setSubmitError(data?.error || 'ไม่สามารถสร้างคำสั่งซื้อได้');
       }

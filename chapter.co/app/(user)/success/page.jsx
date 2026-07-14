@@ -12,12 +12,136 @@ export default function OrderTrackingPage() {
       const raw = window.localStorage.getItem('chapter-last-order');
       if (raw) setOrderData(JSON.parse(raw));
     } catch (e) {
-      // ignore
+      console.error('Error loading last order:', e);
     }
   }, []);
 
   const itemsList = orderData?.items ?? null;
   const formatCurrency = (v) => (typeof v === 'number' ? `฿${v.toFixed(2)}` : v);
+
+  const getOrderDateParts = () => {
+    const d = orderData?.createdAt ? new Date(orderData.createdAt) : new Date();
+    const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+    return {
+      day: d.getDate(),
+      month: months[d.getMonth()],
+      year: d.getFullYear() + 543
+    };
+  };
+
+  const getDeliveryDateParts = () => {
+    const d = orderData?.createdAt ? new Date(orderData.createdAt) : new Date();
+    const daysToAdd = orderData?.shippingMethod === 'express' ? 1 : 3;
+    const startDel = new Date(d);
+    startDel.setDate(d.getDate() + daysToAdd);
+    const endDel = new Date(d);
+    endDel.setDate(d.getDate() + daysToAdd + 2);
+    
+    const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+    return {
+      range: `${startDel.getDate()} - ${endDel.getDate()}`,
+      month: months[startDel.getMonth()],
+      year: startDel.getFullYear() + 543
+    };
+  };
+
+  const orderDateParts = getOrderDateParts();
+  const deliveryDateParts = getDeliveryDateParts();
+
+  const currentStatus = orderData?.status || 'ตรวจสอบชำระเงิน';
+
+  const getStepConfig = () => {
+    const orderDateStr = orderData?.createdAt 
+      ? new Date(orderData.createdAt).toLocaleDateString('th-TH', { day: '2-digit', month: 'short' }) + ' | ' + new Date(orderData.createdAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+      : '12 พ.ค. | 09:30';
+
+    const payDateStr = orderData?.paymentTime 
+      ? orderData.paymentTime.split(' ')[0] + ' | ' + orderData.paymentTime.split(' ')[1]
+      : '12 พ.ค. | 10:15';
+
+    switch (currentStatus) {
+      case 'รอชำระเงิน':
+        return {
+          lineWidth: '12%',
+          steps: [
+            { label: 'รับคำสั่งซื้อแล้ว', date: orderDateStr, status: 'done' },
+            { label: 'รอการชำระเงิน', date: 'รอแนบสลิป', status: 'active' },
+            { label: 'กำลังจัดเตรียมสินค้า', date: 'รอการอัปเดต', status: 'pending' },
+            { label: 'จัดส่งสำเร็จ', date: 'รอการอัปเดต', status: 'pending' }
+          ],
+          timeline: [
+            { title: 'รอการชำระเงิน', detail: 'กรุณาชำระเงินผ่าน PromptPay และแนบหลักฐานการโอนเงินเพื่อรอดำเนินการขั้นตอนถัดไป', time: 'เมื่อสักครู่' },
+            { title: 'บันทึกคำสั่งซื้อแล้ว', detail: 'คำสั่งซื้อของคุณได้รับการบันทึกในระบบเรียบร้อยแล้ว', time: orderDateStr }
+          ]
+        };
+      case 'ตรวจสอบชำระเงิน':
+        return {
+          lineWidth: '38%',
+          steps: [
+            { label: 'รับคำสั่งซื้อแล้ว', date: orderDateStr, status: 'done' },
+            { label: 'ตรวจสอบชำระเงิน', date: payDateStr, status: 'active' },
+            { label: 'กำลังจัดเตรียมสินค้า', date: 'รอการอัปเดต', status: 'pending' },
+            { label: 'จัดส่งสำเร็จ', date: 'รอการอัปเดต', status: 'pending' }
+          ],
+          timeline: [
+            { title: 'กำลังตรวจสอบการชำระเงิน', detail: 'ผู้ดูแลระบบได้รับหลักฐานการโอนเงินแล้ว กำลังดำเนินการตรวจสอบความถูกต้องของสลิป', time: 'เมื่อสักครู่' },
+            { title: 'อัปโหลดหลักฐานการโอนเงินสำเร็จ', detail: 'คุณได้อัปโหลดหลักฐานสลิปการโอนเงินเรียบร้อยแล้ว', time: payDateStr },
+            { title: 'บันทึกคำสั่งซื้อแล้ว', detail: 'คำสั่งซื้อของคุณได้รับการบันทึกในระบบเรียบร้อยแล้ว', time: orderDateStr }
+          ]
+        };
+      case 'รอแพ็ค':
+      case 'รอจัดส่ง':
+        return {
+          lineWidth: '62%',
+          steps: [
+            { label: 'รับคำสั่งซื้อแล้ว', date: orderDateStr, status: 'done' },
+            { label: 'ชำระเงินสำเร็จ', date: payDateStr, status: 'done' },
+            { label: 'กำลังจัดเตรียมสินค้า', date: 'เตรียมจัดส่ง', status: 'active' },
+            { label: 'จัดส่งสำเร็จ', date: 'รอการอัปเดต', status: 'pending' }
+          ],
+          timeline: [
+            { title: 'กำลังจัดเตรียมสินค้า', detail: 'ร้านค้ากำลังแพ็คหนังสือและเตรียมส่งต่อให้บริษัทจัดส่งพัสดุ', time: 'เมื่อสักครู่' },
+            { title: 'ยืนยันการชำระเงินสำเร็จ', detail: 'ตรวจสอบสลิปโอนเงินสำเร็จและปรับปรุงสถานะยอดเงินเรียบร้อย', time: payDateStr },
+            { title: 'บันทึกคำสั่งซื้อแล้ว', detail: 'คำสั่งซื้อของคุณได้รับการบันทึกในระบบเรียบร้อยแล้ว', time: orderDateStr }
+          ]
+        };
+      case 'จัดส่งแล้ว':
+        const shipDateStr = orderData?.paymentTime 
+          ? new Date(new Date(orderData.createdAt || Date.now()).getTime() + 24 * 60 * 60 * 1000).toLocaleDateString('th-TH', { day: '2-digit', month: 'short' }) + ' | 08:45'
+          : '13 พ.ค. | 08:45';
+        return {
+          lineWidth: '88%',
+          steps: [
+            { label: 'รับคำสั่งซื้อแล้ว', date: orderDateStr, status: 'done' },
+            { label: 'ชำระเงินสำเร็จ', date: payDateStr, status: 'done' },
+            { label: 'จัดเตรียมสินค้าแล้ว', date: shipDateStr, status: 'done' },
+            { label: 'จัดส่งสำเร็จ', date: shipDateStr, status: 'active' }
+          ],
+          timeline: [
+            { title: 'จัดส่งพัสดุเรียบร้อย', detail: 'พัสดุจัดส่งถึงผู้รับเสร็จสมบูรณ์', time: shipDateStr },
+            { title: 'พัสดุอยู่ระหว่างนำส่งปลายทาง', detail: `บริษัทขนส่งอยู่ระหว่างจัดเตรียมนำส่งพัสดุ ${orderData?.trackingNumber ? '(เลขพัสดุ: ' + orderData.trackingNumber + ')' : ''}`, time: shipDateStr },
+            { title: 'ยืนยันการชำระเงินสำเร็จ', detail: 'ตรวจสอบสลิปโอนเงินสำเร็จและปรับปรุงสถานะยอดเงินเรียบร้อย', time: payDateStr },
+            { title: 'บันทึกคำสั่งซื้อแล้ว', detail: 'คำสั่งซื้อของคุณได้รับการบันทึกในระบบเรียบร้อยแล้ว', time: orderDateStr }
+          ]
+        };
+      default:
+        return {
+          lineWidth: '38%',
+          steps: [
+            { label: 'รับคำสั่งซื้อแล้ว', date: orderDateStr, status: 'done' },
+            { label: 'ตรวจสอบชำระเงิน', date: payDateStr, status: 'active' },
+            { label: 'กำลังจัดเตรียมสินค้า', date: 'รอการอัปเดต', status: 'pending' },
+            { label: 'จัดส่งสำเร็จ', date: 'รอการอัปเดต', status: 'pending' }
+          ],
+          timeline: [
+            { title: 'กำลังตรวจสอบการชำระเงิน', detail: 'ผู้ดูแลระบบได้รับหลักฐานการโอนเงินแล้ว กำลังดำเนินการตรวจสอบความถูกต้องของสลิป', time: 'เมื่อสักครู่' },
+            { title: 'บันทึกคำสั่งซื้อแล้ว', detail: 'คำสั่งซื้อของคุณได้รับการบันทึกในระบบเรียบร้อยแล้ว', time: orderDateStr }
+          ]
+        };
+    }
+  };
+
+  const config = getStepConfig();
 
   return (
     <div className="min-h-screen bg-[#FCFBFA] text-[#1A1A1A] font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif] relative pb-16">
@@ -46,22 +170,22 @@ export default function OrderTrackingPage() {
         <div className="bg-white border border-[#e6e5e0] rounded-[24px] p-8 shadow-sm mb-8 flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-[#e6e5e0]">
           <div className="flex-1 py-4 md:py-0 md:px-8 first:pt-0 md:first:pl-0 last:pb-0 md:last:pr-0 flex flex-col justify-center">
             <p className="text-[13px] text-[#807d72] font-medium mb-1.5 uppercase tracking-wide">หมายเลขคำสั่งซื้อ</p>
-            <p className="text-[22px] font-black text-[#C8861A]">#ORD-77291</p>
+            <p className="text-[22px] font-black text-[#C8861A]">#{orderData?.id || orderData?.orderId || 'ORD-77291'}</p>
           </div>
           <div className="flex-1 py-4 md:py-0 md:px-8 flex flex-col justify-center">
             <p className="text-[13px] text-[#807d72] font-medium mb-1.5 uppercase tracking-wide">วันที่สั่งซื้อ</p>
             <p className="text-[16px] font-bold text-[#1A1A1A] flex items-center gap-1.5">
-              12 
-              <span className="bg-orange-50 text-primary px-2 py-0.5 rounded-md text-[13px] font-semibold">ต.ค.</span> 
-              2024
+              {orderDateParts.day} 
+              <span className="bg-orange-50 text-primary px-2 py-0.5 rounded-md text-[13px] font-semibold">{orderDateParts.month}</span> 
+              {orderDateParts.year}
             </p>
           </div>
           <div className="flex-1 py-4 md:py-0 md:px-8 flex flex-col justify-center">
             <p className="text-[13px] text-[#807d72] font-medium mb-1.5 uppercase tracking-wide">คาดว่าจะได้รับสินค้า</p>
             <p className="text-[16px] font-bold text-[#1A1A1A] flex items-center gap-1.5">
-              15 - 16 
-              <span className="bg-blue-50 text-[#1ba5e1] px-2 py-0.5 rounded-md text-[13px] font-semibold">ต.ค.</span> 
-              2024
+              {deliveryDateParts.range} 
+              <span className="bg-blue-50 text-[#1ba5e1] px-2 py-0.5 rounded-md text-[13px] font-semibold">{deliveryDateParts.month}</span> 
+              {deliveryDateParts.year}
             </p>
           </div>
         </div>
@@ -79,97 +203,89 @@ export default function OrderTrackingPage() {
                 {/* Background Line */}
                 <div className="absolute top-[14px] left-[12%] right-[12%] h-[3px] bg-[#f0efeb] z-0"></div>
                 {/* Active Line */}
-                <div className="absolute top-[14px] left-[12%] w-[50%] h-[3px] bg-[#C8861A] z-0"></div>
+                <div className="absolute top-[14px] left-[12%] h-[3px] bg-[#C8861A] z-0 transition-all duration-500" style={{ width: config.lineWidth }}></div>
                 
                 <div className="flex justify-between relative z-10 px-2">
-                  {/* Step 1 */}
-                  <div className="flex flex-col items-center w-24">
-                    <div className="w-8 h-8 rounded-full bg-[#C8861A] text-white flex items-center justify-center mb-3 shadow-[0_0_0_4px_white]">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </div>
-                    <p className="text-[12px] font-bold text-[#1A1A1A] text-center leading-tight mb-1">รับคำสั่งซื้อแล้ว</p>
-                    <p className="text-[10px] text-[#a09c92]">12 พ.ค. | 09:30</p>
-                  </div>
-                  {/* Step 2 */}
-                  <div className="flex flex-col items-center w-24">
-                    <div className="w-8 h-8 rounded-full bg-[#C8861A] text-white flex items-center justify-center mb-3 shadow-[0_0_0_4px_white]">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </div>
-                    <p className="text-[12px] font-bold text-[#1A1A1A] text-center leading-tight mb-1">กำลังจัดเตรียมสินค้า</p>
-                    <p className="text-[10px] text-[#a09c92]">12 พ.ค. | 14:15</p>
-                  </div>
-                  {/* Step 3 (Active) */}
-                  <div className="flex flex-col items-center w-24">
-                    <div className="w-10 h-10 rounded-full bg-white border-[3px] border-[#C8861A] flex items-center justify-center mb-2 shadow-[0_0_0_5px_rgba(200,134,26,0.1),0_0_0_4px_white] relative -top-1">
-                      <div className="w-3 h-3 rounded-full bg-[#C8861A]"></div>
-                    </div>
-                    <p className="text-[12px] font-bold text-[#1A1A1A] text-center leading-tight mb-1">อยู่ระหว่างการจัดส่ง</p>
-                    <p className="text-[10px] text-[#a09c92]">13 พ.ค. | 08:45</p>
-                  </div>
-                  {/* Step 4 (Pending) */}
-                  <div className="flex flex-col items-center w-24">
-                    <div className="w-8 h-8 rounded-full bg-[#f0efeb] mb-3 shadow-[0_0_0_4px_white]"></div>
-                    <p className="text-[12px] font-bold text-[#a09c92] text-center leading-tight mb-1">จัดส่งสำเร็จ</p>
-                    <p className="text-[10px] text-[#a09c92]">รอการอัปเดต</p>
-                  </div>
+                  {config.steps.map((step, idx) => {
+                    if (step.status === 'done') {
+                      return (
+                        <div key={idx} className="flex flex-col items-center w-24">
+                          <div className="w-8 h-8 rounded-full bg-[#C8861A] text-white flex items-center justify-center mb-3 shadow-[0_0_0_4px_white] z-10">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                          </div>
+                          <p className="text-[12px] font-bold text-[#1A1A1A] text-center leading-tight mb-1">{step.label}</p>
+                          <p className="text-[10px] text-[#a09c92] whitespace-nowrap">{step.date}</p>
+                        </div>
+                      );
+                    } else if (step.status === 'active') {
+                      return (
+                        <div key={idx} className="flex flex-col items-center w-24 animate-fadeIn">
+                          <div className="w-10 h-10 rounded-full bg-white border-[3px] border-[#C8861A] flex items-center justify-center mb-2 shadow-[0_0_0_5px_rgba(200,134,26,0.1),0_0_0_4px_white] relative -top-1 z-10">
+                            <div className="w-3 h-3 rounded-full bg-[#C8861A] animate-pulse"></div>
+                          </div>
+                          <p className="text-[12px] font-bold text-[#1A1A1A] text-center leading-tight mb-1">{step.label}</p>
+                          <p className="text-[10px] text-[#a09c92] whitespace-nowrap">{step.date}</p>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div key={idx} className="flex flex-col items-center w-24">
+                          <div className="w-8 h-8 rounded-full bg-[#f0efeb] mb-3 shadow-[0_0_0_4px_white] z-10"></div>
+                          <p className="text-[12px] font-bold text-[#a09c92] text-center leading-tight mb-1">{step.label}</p>
+                          <p className="text-[10px] text-[#a09c92] whitespace-nowrap">{step.date}</p>
+                        </div>
+                      );
+                    }
+                  })}
                 </div>
               </div>
 
               {/* Vertical Timeline */}
               <div className="relative pl-8 pt-4 pb-2 space-y-8 before:absolute before:inset-y-6 before:left-[15px] before:w-[2px] before:bg-[#f0efeb]">
-                {/* Event 1 */}
-                <div className="relative">
-                  <div className="absolute -left-[37px] w-[30px] h-[30px] rounded-full bg-[#C8861A] text-white flex items-center justify-center ring-[6px] ring-white z-10 shadow-sm">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                {config.timeline.map((event, idx) => (
+                  <div key={idx} className="relative animate-fadeIn">
+                    {idx === 0 ? (
+                      <div className="absolute -left-[37px] w-[30px] h-[30px] rounded-full bg-[#C8861A] text-white flex items-center justify-center ring-[6px] ring-white z-10 shadow-sm">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      </div>
+                    ) : (
+                      <div className="absolute -left-[27px] w-[12px] h-[12px] rounded-full bg-[#d0cdc5] ring-[6px] ring-white z-10 mt-1"></div>
+                    )}
+                    <h3 className={`text-[14px] font-bold mb-1 ${idx === 0 ? 'text-[#1A1A1A]' : 'text-[#5a5852]'}`}>{event.title}</h3>
+                    <p className={`text-[13px] mb-1 ${idx === 0 ? 'text-[#5a5852]' : 'text-[#807d72]'}`}>{event.detail}</p>
+                    <p className="text-[11px] text-[#a09c92] font-medium">{event.time}</p>
                   </div>
-                  <h3 className="text-[14px] font-bold text-[#1A1A1A] mb-1">พัสดุออกจากศูนย์กระจายสินค้า</h3>
-                  <p className="text-[13px] text-[#5a5852] mb-1">Bangkok Distribution Center (BK-04)</p>
-                  <p className="text-[11px] text-[#a09c92] font-medium">13 พฤษภาคม 2024, 08:45 น.</p>
-                </div>
-                {/* Event 2 */}
-                <div className="relative">
-                  <div className="absolute -left-[27px] w-[12px] h-[12px] rounded-full bg-[#d0cdc5] ring-[6px] ring-white z-10 mt-1"></div>
-                  <h3 className="text-[14px] font-bold text-[#5a5852] mb-1">พัสดุมาถึงศูนย์กระจายสินค้า</h3>
-                  <p className="text-[13px] text-[#807d72] mb-1">Bangkok Sorting Hub</p>
-                  <p className="text-[11px] text-[#a09c92] font-medium">12 พฤษภาคม 2024, 18:20 น.</p>
-                </div>
-                {/* Event 3 */}
-                <div className="relative">
-                  <div className="absolute -left-[27px] w-[12px] h-[12px] rounded-full bg-[#d0cdc5] ring-[6px] ring-white z-10 mt-1"></div>
-                  <h3 className="text-[14px] font-bold text-[#5a5852] mb-1">สินค้าถูกบรรจุลงกล่องเรียบร้อย</h3>
-                  <p className="text-[13px] text-[#807d72] mb-1">Chapter.Co Warehouse A</p>
-                  <p className="text-[11px] text-[#a09c92] font-medium">12 พฤษภาคม 2024, 14:15 น.</p>
-                </div>
+                ))}
               </div>
             </div>
 
-                {/* Order Items */}
-                <div className="bg-white border border-[#e6e5e0] rounded-[24px] p-8 md:p-10 shadow-sm">
-                  <h2 className="text-[18px] font-bold text-[#1A1A1A] mb-6 border-b border-[#e6e5e0] pb-5">รายการสินค้าในคำสั่งซื้อ ({itemsList ? itemsList.length : 0})</h2>
+            {/* Order Items */}
+            <div className="bg-white border border-[#e6e5e0] rounded-[24px] p-8 md:p-10 shadow-sm">
+              <h2 className="text-[18px] font-bold text-[#1A1A1A] mb-6 border-b border-[#e6e5e0] pb-5">รายการสินค้าในคำสั่งซื้อ ({itemsList ? itemsList.length : 0})</h2>
 
-                  <div className="space-y-6">
-                    {(itemsList ?? []).map((item, idx) => (
-                      <div key={item.id ?? idx} className="flex gap-5">
-                        <div className="w-20 h-28 bg-[#e5dfd3] rounded-lg overflow-hidden flex-shrink-0 shadow-sm border border-[#e6e5e0]">
-                          <img src={item.image || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=200&auto=format&fit=crop'} alt={item.title || 'book'} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-                        </div>
-                        <div className="flex-1 flex flex-col justify-center py-2">
-                          <h3 className="text-[15px] font-bold text-[#1A1A1A] mb-1">{item.title || item.name}</h3>
-                          {item.author && (
-                            <p className="text-[13px] text-[#807d72] mb-4 flex items-center gap-1.5">
-                              <span className="bg-[#f0efeb] text-[#807d72] px-2 py-0.5 rounded text-[11px] font-bold">ผู้แต่ง</span>
-                              {item.author}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-4">
-                            <span className="text-[12px] bg-[#f5f5f5] text-[#5a5852] px-3 py-1 rounded font-bold">จำนวน: {item.quantity ?? item.qty ?? 1}</span>
-                            <span className="text-[15px] font-bold text-[#C8861A]">{formatCurrency(item.price ?? (item.total ? item.total / (item.quantity||1) : 0))}</span>
-                          </div>
-                        </div>
+              <div className="space-y-6">
+                {(itemsList ?? []).map((item, idx) => (
+                  <div key={item.id ?? idx} className="flex gap-5">
+                    <div className="w-20 h-28 bg-[#e5dfd3] rounded-lg overflow-hidden flex-shrink-0 shadow-sm border border-[#e6e5e0]">
+                      <img src={item.image || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=200&auto=format&fit=crop'} alt={item.title || 'book'} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                    </div>
+                    <div className="flex-1 flex flex-col justify-center py-2">
+                      <h3 className="text-[15px] font-bold text-[#1A1A1A] mb-1">{item.title || item.name}</h3>
+                      {item.author && (
+                        <p className="text-[13px] text-[#807d72] mb-4 flex items-center gap-1.5">
+                          <span className="bg-[#f0efeb] text-[#807d72] px-2 py-0.5 rounded text-[11px] font-bold">ผู้แต่ง</span>
+                          {item.author}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-4">
+                        <span className="text-[12px] bg-[#f5f5f5] text-[#5a5852] px-3 py-1 rounded font-bold">จำนวน: {item.quantity ?? item.qty ?? 1}</span>
+                        <span className="text-[15px] font-bold text-[#C8861A]">{formatCurrency(item.price ?? (item.total ? item.total / (item.quantity||1) : 0))}</span>
                       </div>
-                    ))}
+                    </div>
                   </div>
-                </div>
+                ))}
+              </div>
+            </div>
 
           </div>
 
@@ -208,7 +324,7 @@ export default function OrderTrackingPage() {
 
               <div className="border-t border-[#d0cdc5] pt-6 flex justify-between items-end mt-8">
                 <p className="text-[13px] text-[#807d72] font-bold">สรุปยอดชำระ<br/><span className="text-[16px] text-[#1A1A1A]">ยอดรวมสุทธิ</span></p>
-                <p className="text-[24px] font-black text-[#1A1A1A]">{formatCurrency(orderData?.summary?.total ?? orderData?.total ?? 0)}</p>
+                <p className="text-[24px] font-black text-[#1A1A1A]">{formatCurrency(orderData?.summary?.total ?? orderData?.amount ?? orderData?.total ?? 0)}</p>
               </div>
             </div>
 
