@@ -2,14 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
-import { books } from '../../data/books';
 
 const CART_STORAGE_KEY = 'chapter-cart-items';
 const COUPON_STORAGE_KEY = 'chapter-cart-coupon';
-const fallbackItems = [
-  { ...books[0], qty: 1 },
-  { ...books[8], qty: 2 }
-];
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -23,7 +18,7 @@ export default function CheckoutPage() {
   const [summary, setSummary] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
-  const itemsToRender = cartItems.length ? cartItems : fallbackItems;
+  const itemsToRender = cartItems;
 
   const subtotal = summary?.subtotal ?? itemsToRender.reduce((acc, item) => acc + (item.price * item.qty), 0);
   const discountAmount = summary?.discountAmount ?? 0;
@@ -64,12 +59,11 @@ export default function CheckoutPage() {
       if (savedCart) {
         setCartItems(JSON.parse(savedCart));
       } else {
-        setCartItems(fallbackItems);
-        try { window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(fallbackItems)); } catch {}
+        setCartItems([]);
       }
       setCouponCode(savedCoupon);
     } catch {
-      setCartItems(fallbackItems);
+      setCartItems([]);
       setCouponCode('');
     }
   }, []);
@@ -83,7 +77,7 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     const loadSummary = async () => {
-      const itemsToUse = cartItems.length ? cartItems : fallbackItems;
+      const itemsToUse = cartItems;
       if (!itemsToUse.length) {
         setSummary(null);
         return;

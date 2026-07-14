@@ -1,6 +1,13 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import {
+  readCartItems,
+  updateCartItemQty,
+  removeCartItem,
+  getCartItemCount,
+  getCartSubtotal,
+} from '@/utils/cartStorage';
 
 export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -14,6 +21,7 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
     setMounted(true);
@@ -29,6 +37,26 @@ export default function Navbar() {
     } catch (e) {
       setIsLoggedIn(false);
     }
+
+    setCartItems(readCartItems());
+  }, []);
+
+  useEffect(() => {
+    const syncCart = () => {
+      const nextItems = readCartItems();
+      setCartItems((prevItems) => {
+        const prevSerialized = JSON.stringify(prevItems);
+        const nextSerialized = JSON.stringify(nextItems);
+        return prevSerialized === nextSerialized ? prevItems : nextItems;
+      });
+    };
+
+    window.addEventListener('chapter-cart-updated', syncCart);
+    window.addEventListener('storage', syncCart);
+    return () => {
+      window.removeEventListener('chapter-cart-updated', syncCart);
+      window.removeEventListener('storage', syncCart);
+    };
   }, []);
 
   useEffect(() => {
@@ -120,11 +148,34 @@ export default function Navbar() {
     { name: 'Art', subcategories: ['Painting', 'Photography', 'Sculpture', 'Digital Art', 'Art History'] },
   ];
 
-  const cartItems = [
-    { id: 1, title: 'Atomic Habits', author: 'James Clear', price: 15.99, image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=200&auto=format&fit=crop' },
-    { id: 2, title: 'Sapiens', author: 'Yuval Noah Harari', price: 28.50, image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=200&auto=format&fit=crop' }
-  ];
-  const cartTotal = cartItems.reduce((sum, item) => sum + item.price, 0);
+  const cartTotal = getCartSubtotal(cartItems);
+  const cartItemCount = getCartItemCount(cartItems);
+
+  const handleCartQtyChange = (bookId, nextQty) => {
+    const item = cartItems.find((cartItem) => cartItem.id === bookId);
+    if (!item) return;
+
+    const stock = Number(item.stock || 0);
+    const safeQty = stock > 0 ? Math.min(nextQty, stock) : nextQty;
+    if (safeQty < 1) {
+      const nextItems = cartItems.filter((cartItem) => cartItem.id !== bookId);
+      setCartItems(nextItems);
+      removeCartItem(bookId);
+      return;
+    }
+
+    const nextItems = cartItems.map((cartItem) => (
+      cartItem.id === bookId ? { ...cartItem, qty: safeQty } : cartItem
+    ));
+    setCartItems(nextItems);
+    updateCartItemQty(bookId, safeQty);
+  };
+
+  const handleRemoveCartItem = (bookId) => {
+    const nextItems = cartItems.filter((cartItem) => cartItem.id !== bookId);
+    setCartItems(nextItems);
+    removeCartItem(bookId);
+  };
 
   return (
     <>
@@ -233,7 +284,9 @@ export default function Navbar() {
 
                 {/* ปุ่มเปิดตะกร้าสินค้า */}
                 <button onClick={() => setIsCartOpen(true)} className="text-[#1A1A1A] hover:text-primary transition-colors relative p-2 rounded-full hover:bg-white/60">
-                  <span className="absolute top-0 right-0 bg-[#C8861A] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">2</span>
+                  {cartItemCount > 0 && (
+                    <span className="absolute top-0 right-0 bg-[#C8861A] text-white text-[10px] font-bold min-w-4 h-4 px-1 rounded-full flex items-center justify-center">{cartItemCount}</span>
+                  )}
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
                 </button>
               </>
@@ -316,7 +369,7 @@ export default function Navbar() {
           <div className="p-6 border-b border-[#e6e5e0] flex justify-between items-center bg-white/50 backdrop-blur-md">
             <div className="flex items-center space-x-2">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C8861A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-              <h2 className="text-xl font-semibold text-[#1A1A1A]">ตะกร้าสินค้า (2)</h2>
+              <h2 className="text-xl font-semibold text-[#1A1A1A]">ตะกร้าสินค้า ({cartItemCount})</h2>
             </div>
             <button onClick={() => setIsCartOpen(false)} className="p-2 text-[#1A1A1A] hover:text-[#C8861A] hover:bg-orange-50 rounded-full transition-colors">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -324,32 +377,38 @@ export default function Navbar() {
           </div>
           
           <div className="flex-1 overflow-y-auto p-6" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            <div className="space-y-6">
-              {cartItems.map((item) => (
-                <div key={item.id} className="flex gap-4 group">
-                  <div className="w-20 h-28 rounded-xl overflow-hidden shadow-sm flex-shrink-0 border border-[#e6e5e0]">
-                    <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                  </div>
-                  <div className="flex flex-col flex-1 py-1">
-                    <div className="flex justify-between items-start">
-                      <h3 className="font-semibold text-[#1A1A1A] leading-tight text-sm pr-4 line-clamp-2">{item.title}</h3>
-                      <button className="text-[#a09c92] hover:text-red-500 transition-colors mt-0.5">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
-                      </button>
+            {cartItems.length > 0 ? (
+              <div className="space-y-6">
+                {cartItems.map((item) => (
+                  <div key={item.id} className="flex gap-4 group">
+                    <div className="w-20 h-28 rounded-xl overflow-hidden shadow-sm flex-shrink-0 border border-[#e6e5e0]">
+                      <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     </div>
-                    <p className="text-[#807d72] text-[12px] mb-2">{item.author}</p>
-                    <div className="mt-auto flex justify-between items-center">
-                      <div className="flex items-center border border-[#e6e5e0] rounded-lg bg-white overflow-hidden">
-                        <button className="px-2 py-0.5 text-[#1A1A1A] hover:bg-orange-50 hover:text-[#C8861A] transition-colors">-</button>
-                        <span className="px-2 py-0.5 text-sm font-medium text-[#1A1A1A] bg-[#F2EEE7]">1</span>
-                        <button className="px-2 py-0.5 text-[#1A1A1A] hover:bg-orange-50 hover:text-[#C8861A] transition-colors">+</button>
+                    <div className="flex flex-col flex-1 py-1">
+                      <div className="flex justify-between items-start">
+                        <h3 className="font-semibold text-[#1A1A1A] leading-tight text-sm pr-4 line-clamp-2">{item.title}</h3>
+                        <button onClick={() => handleRemoveCartItem(item.id)} className="text-[#a09c92] hover:text-red-500 transition-colors mt-0.5">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                        </button>
                       </div>
-                      <span className="font-bold text-[#C8861A]">${item.price}</span>
+                      <p className="text-[#807d72] text-[12px] mb-2">{item.author}</p>
+                      <div className="mt-auto flex justify-between items-center">
+                        <div className="flex items-center border border-[#e6e5e0] rounded-lg bg-white overflow-hidden">
+                          <button onClick={() => handleCartQtyChange(item.id, Number(item.qty || 0) - 1)} className="px-2 py-0.5 text-[#1A1A1A] hover:bg-orange-50 hover:text-[#C8861A] transition-colors">-</button>
+                          <span className="px-2 py-0.5 text-sm font-medium text-[#1A1A1A] bg-[#F2EEE7]">{item.qty}</span>
+                          <button onClick={() => handleCartQtyChange(item.id, Number(item.qty || 0) + 1)} className="px-2 py-0.5 text-[#1A1A1A] hover:bg-orange-50 hover:text-[#C8861A] transition-colors">+</button>
+                        </div>
+                        <span className="font-bold text-[#C8861A]">${(Number(item.price || 0) * Number(item.qty || 0)).toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="h-full flex items-center justify-center text-center text-[#807d72] text-sm">
+                ยังไม่มีสินค้าในตะกร้า
+              </div>
+            )}
           </div>
 
           <div className="p-6 border-t border-[#e6e5e0] bg-white/50 backdrop-blur-md">
@@ -387,11 +446,11 @@ export default function Navbar() {
             </div>
             
             <Link 
-              href="/checkout"
+              href={cartItems.length > 0 ? '/checkout' : '/shop'}
               onClick={() => setIsCartOpen(false)}
               className="block text-center w-full bg-gradient-to-r from-primary to-primary text-white py-3.5 rounded-2xl font-semibold text-[15px] hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-300"
             >
-              ดำเนินการชำระเงิน
+              {cartItems.length > 0 ? 'ดำเนินการชำระเงิน' : 'ไปเลือกซื้อหนังสือ'}
             </Link>
             
             <button onClick={() => setIsCartOpen(false)} className="w-full bg-white text-[#1A1A1A] border border-[#e6e5e0] py-3.5 mt-3 rounded-2xl font-semibold text-[15px] hover:bg-orange-50 hover:border-primary hover:text-[#C8861A] transition-all duration-300">
