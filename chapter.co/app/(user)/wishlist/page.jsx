@@ -6,6 +6,8 @@ import Navbar from '../../components/Navbar';
 import { books } from '../../data/books';
 import { authService } from '@/utils/authService';
 
+const WISHLIST_STORAGE_KEY = 'chapter-wishlist-ids';
+
 export default function WishlistPage() {
   const router = useRouter();
   const fileInputRef = useRef(null);
@@ -14,7 +16,7 @@ export default function WishlistPage() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  const [wishlist, setWishlist] = useState([books[1], books[3], books[7]]);
+  const [wishlist, setWishlist] = useState([]);
 
   // ดึงข้อมูล User เมื่อโหลดหน้าเว็บ
   useEffect(() => {
@@ -23,9 +25,33 @@ export default function WishlistPage() {
       router.push('/auth/login');
     } else {
       setUser(currentUser);
+
+      try {
+        const raw = window.localStorage.getItem(WISHLIST_STORAGE_KEY);
+        const wishlistIds = JSON.parse(raw || '[]');
+        if (Array.isArray(wishlistIds)) {
+          const mappedBooks = wishlistIds
+            .map((id) => books.find((book) => book.id === id))
+            .filter(Boolean);
+          setWishlist(mappedBooks);
+        } else {
+          setWishlist([]);
+        }
+      } catch {
+        setWishlist([]);
+      }
     }
     setIsLoading(false);
   }, [router]);
+
+  const removeFromWishlist = (bookId) => {
+    const nextWishlist = wishlist.filter((book) => book.id !== bookId);
+    setWishlist(nextWishlist);
+    window.localStorage.setItem(
+      WISHLIST_STORAGE_KEY,
+      JSON.stringify(nextWishlist.map((book) => book.id))
+    );
+  };
 
   const handleLogout = (e) => {
     e.preventDefault();
@@ -145,7 +171,10 @@ export default function WishlistPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {wishlist.map((book) => (
                   <div key={book.id} className="bg-white/60 backdrop-blur-sm border border-white/80 rounded-3xl p-5 hover:bg-white hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group flex flex-col h-full relative">
-                    <button className="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md z-20 text-[#C8861A] hover:scale-110 transition-transform">
+                    <button
+                      onClick={() => removeFromWishlist(book.id)}
+                      className="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md z-20 text-[#C8861A] hover:scale-110 transition-transform"
+                    >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="#C8861A" stroke="#C8861A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                     </button>
                     

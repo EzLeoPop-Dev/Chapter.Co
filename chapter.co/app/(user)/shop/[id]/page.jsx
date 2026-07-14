@@ -4,6 +4,24 @@ import Link from 'next/link';
 import { books } from '../../../data/books';
 import Navbar from '../../../components/Navbar';
 
+const WISHLIST_STORAGE_KEY = 'chapter-wishlist-ids';
+
+const readWishlistIds = () => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem(WISHLIST_STORAGE_KEY);
+    const parsed = JSON.parse(raw || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeWishlistIds = (ids) => {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(ids));
+};
+
 export default function BookDetailPage({ params }) {
   const resolvedParams = use(params);
   const { id } = resolvedParams;
@@ -39,10 +57,27 @@ export default function BookDetailPage({ params }) {
   }, [id]);
 
   useEffect(() => {
+    if (!book) return;
+    const wishlistIds = readWishlistIds();
+    setIsFavorite(wishlistIds.includes(book.id));
+  }, [book]);
+
+  useEffect(() => {
     if (!showSampleModal) {
       setSamplePageIndex(0);
     }
   }, [showSampleModal]);
+
+  const toggleWishlist = () => {
+    if (!book) return;
+
+    const wishlistIds = readWishlistIds();
+    const exists = wishlistIds.includes(book.id);
+    const nextIds = exists ? wishlistIds.filter((itemId) => itemId !== book.id) : [...wishlistIds, book.id];
+
+    writeWishlistIds(nextIds);
+    setIsFavorite(!exists);
+  };
 
   if (!book) {
     return (
@@ -217,11 +252,11 @@ export default function BookDetailPage({ params }) {
               </div>
               
               <button 
-                onClick={() => setIsFavorite(!isFavorite)}
+                onClick={toggleWishlist}
                 className="flex items-center text-[13px] font-bold text-[#5a5852] hover:text-[#C8861A] transition-colors"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill={isFavorite ? "#C8861A" : "none"} stroke={isFavorite ? "#C8861A" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                เพิ่มในรายการที่ชอบ
+                {isFavorite ? 'ลบออกจากรายการที่ชอบ' : 'เพิ่มในรายการที่ชอบ'}
               </button>
             </div>
 
@@ -246,7 +281,7 @@ export default function BookDetailPage({ params }) {
                 ฿{book.price.toFixed(2)}
               </div>
 
-              <div className={`inline-flex items-center px-3 py-1 rounded-lg text-[12px] font-bold mb-8 ${stockClass}`}>
+              <div className={`inline-flex w-fit items-center px-3 py-1 rounded-lg text-[12px] font-bold mb-8 whitespace-nowrap ${stockClass}`}>
                 {stockLabel}
               </div>
 

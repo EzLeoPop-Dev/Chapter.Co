@@ -10,8 +10,8 @@ export default function BookGrid({ filteredBooks, setSelectedBook, searchQuery, 
 
   const getStockLabel = (stock = 0) => {
     if (stock <= 0) return 'สินค้าหมด';
-    if (stock <= 5) return `เหลือน้อย (${stock})`;
-    return `พร้อมส่ง (${stock})`;
+    if (stock <= 5) return `เหลือน้อย ${stock}`;
+    return `พร้อมส่ง ${stock}`;
   };
 
   return (
@@ -40,9 +40,6 @@ export default function BookGrid({ filteredBooks, setSelectedBook, searchQuery, 
                 <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-[11px] font-bold text-primary uppercase tracking-wider">
                   {book.category}
                 </div>
-                <div className={`absolute top-3 right-3 px-2.5 py-1 rounded-lg text-[11px] font-bold ${getStockBadgeClass(book.stock)}`}>
-                  {getStockLabel(book.stock)}
-                </div>
               </div>
               
               <div className="flex-1 flex flex-col justify-between">
@@ -54,6 +51,11 @@ export default function BookGrid({ filteredBooks, setSelectedBook, searchQuery, 
                   </div>
                   <h3 className="font-bold text-[18px] text-[#1A1A1A] leading-tight mb-1 group-hover:text-[#C8861A] transition-colors">{book.title}</h3>
                   <p className="text-[#1A1A1A] text-[14px] font-medium">{book.author}</p>
+                  <div className="mt-3">
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap ${getStockBadgeClass(book.stock)}`}>
+                      {getStockLabel(book.stock)}
+                    </span>
+                  </div>
                 </div>
                 
                 <div className="flex justify-between items-center mt-6 pt-4 border-t border-[#e6e5e0]">
