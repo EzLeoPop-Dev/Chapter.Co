@@ -16,6 +16,7 @@ export default function BookDetailPage({ params }) {
   const [filterStar, setFilterStar] = useState(null);
   const [reviewText, setReviewText] = useState("");
   const [selectedImages, setSelectedImages] = useState([]);
+  const [samplePageIndex, setSamplePageIndex] = useState(0);
   const fileInputRef = useRef(null);
 
   const handleImageUpload = (e) => {
@@ -37,6 +38,12 @@ export default function BookDetailPage({ params }) {
     }
   }, [id]);
 
+  useEffect(() => {
+    if (!showSampleModal) {
+      setSamplePageIndex(0);
+    }
+  }, [showSampleModal]);
+
   if (!book) {
     return (
       <div className="min-h-screen bg-[#F9F7F4] flex flex-col">
@@ -50,6 +57,9 @@ export default function BookDetailPage({ params }) {
 
   const isManga = book.category === 'การ์ตูน (Manga)';
   const isEbook = book.bookType === 'E-Book';
+  const stock = Number(book.stock || 0);
+  const stockLabel = stock <= 0 ? 'สินค้าหมด' : stock <= 5 ? `เหลือ ${stock} ชิ้น` : `พร้อมส่ง ${stock} ชิ้น`;
+  const stockClass = stock <= 0 ? 'bg-red-100 text-red-600' : stock <= 5 ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700';
 
   const displayReviews = book.reviewsData?.length > 0 ? book.reviewsData : [
     { id: 1, user: 'กิตติพงษ์ ส.', date: '18 ม.ค. 2024', rating: 5, comment: 'อ่านแล้ววางไม่ลงเลยครับ ภาษาที่ใช้สวยงามมาก บรรยายภาพได้ชัดเจน แนะนำสำหรับคนที่ชอบแนวลึกลับซ่อนเงื่อนครับ', title: 'เนื้อเรื่องน่าติดตามมากครับ' },
@@ -59,6 +69,119 @@ export default function BookDetailPage({ params }) {
   ];
 
   const filteredReviews = filterStar ? displayReviews.filter(r => Math.floor(r.rating) === filterStar) : displayReviews;
+
+  const samplePages = book.bookType === 'E-Book'
+    ? [
+        {
+          section: 'คำนำ',
+          title: 'ยินดีต้อนรับสู่หนังสือเล่มนี้',
+          paragraphs: [
+            `${book.title} ถูกจัดทำขึ้นเพื่อช่วยให้ผู้อ่านเข้าถึงแนวคิดหลักของ ${book.category} ได้อย่างชัดเจนและเป็นระบบ`,
+            `เนื้อหาในเล่มถูกเลือกมาเพื่อให้คุณได้สัมผัสกับความคิดสำคัญก่อน โดยเน้นให้ผู้อ่านรู้สึกถึงลำดับของเรื่องราวและความต่อเนื่องของคำสอน`,
+            `จุดมุ่งหมายของหนังสือเล่มนี้คือการเปิดประตูให้คุณลองอ่านและเห็นว่าเนื้อหานี้เหมาะกับสไตล์การเรียนรู้ของคุณหรือไม่`,
+          ],
+          footer: `โดย ${book.author}`,
+        },
+        {
+          section: 'คำนำ',
+          title: 'ทำไมต้องอ่านเล่มนี้',
+          paragraphs: [
+            `ในทุกช่วงของการเรียนรู้ เราไม่เพียงต้องรู้ว่าอะไรคือคำตอบ แต่ยังต้องเข้าใจว่าทำไมคำตอบนั้นจึงสำคัญ`,
+            `หนังสือเล่มนี้จึงนำเสนอแนวคิดอย่างเรียบง่ายและต่อเนื่อง เพื่อให้คุณพัฒนาความคิดและความเข้าใจได้อย่างไม่รู้สึกกดดัน`,
+          ],
+          footer: 'เริ่มจากพื้นฐาน แล้วลึกขึ้นเรื่อย ๆ',
+        },
+        {
+          section: 'สารบัญ',
+          title: 'สารบัญ',
+          chapters: [
+            { title: 'คำนำ', page: 3 },
+            { title: 'ทำไมต้องอ่านเล่มนี้', page: 5 },
+            { title: 'แนวคิดหลักของเล่ม', page: 7 },
+            { title: 'บทที่ 1', page: 11 },
+            { title: 'บทที่ 2', page: 15 },
+            { title: 'บทที่ 3', page: 19 },
+            { title: 'บทที่ 4', page: 23 },
+            { title: 'บทที่ 5', page: 27 },
+          ],
+          footer: 'หน้า 3',
+        },
+        {
+          section: 'สารบัญ',
+          title: 'แนวคิดหลักของเล่ม',
+          paragraphs: [
+            `บทนี้จะช่วยให้คุณเห็นภาพรวมของ ${book.title} และรู้ว่าหนังสือเล่มนี้มุ่งสื่อสารอะไรให้คุณรับรู้`,
+            `คำสำคัญของเล่มคือการเชื่อมโยงข้อมูลกับบริบทจริง เพื่อให้ผู้อ่านไม่เพียงจำความรู้ แต่สามารถนำไปใช้ได้จริง`,
+          ],
+          footer: 'หน้า 4',
+        },
+        {
+          section: 'ตัวอย่างเนื้อหา',
+          title: 'บทที่ 1',
+          paragraphs: [
+            `${book.title} เริ่มต้นด้วยการตั้งคำถามพื้นฐานว่าเหตุใดสิ่งต่าง ๆ จึงเกิดขึ้นและเหตุใดหลายสิ่งจึงสัมพันธ์กันอย่างลึกซึ้ง`,
+            `เมื่อเราเข้าใจบริบทของคำถามเหล่านี้ เราจะเห็นว่าความรู้ส่วนใหญ่ไม่ได้ถูกสร้างขึ้นจากการจำ แต่จากการสังเกตและเชื่อมโยงข้อเท็จจริงให้เห็นภาพรวม`,
+          ],
+          footer: 'หน้า 5',
+        },
+        {
+          section: 'ตัวอย่างเนื้อหา',
+          title: 'บทที่ 1 (ต่อ)',
+          paragraphs: [
+            `หนึ่งในสิ่งที่น่าสนใจที่สุดของเล่มนี้คือการนำเสนอข้อมูลในลักษณะที่ไม่แปลกแยกจากชีวิตประจำวัน`,
+            `ผู้เขียนเลือกใช้คำสั้น ๆ และเรียบง่ายเพื่อให้ผู้อ่านสามารถฟังหรือติดตามเนื้อหาได้โดยไม่ต้องพยายามตีความมากเกินจำเป็น`,
+          ],
+          footer: 'หน้า 6',
+        },
+        {
+          section: 'ตัวอย่างเนื้อหา',
+          title: 'บทที่ 1 (ต่อ)',
+          paragraphs: [
+            `เมื่อคุณอ่านต่อไป คุณจะเห็นว่าหนังสือเล่มนี้ไม่ได้เพียงแค่บอกคุณว่าอะไรคือสิ่งสำคัญ แต่ยังแสดงให้คุณเห็นว่าทำไมสิ่งสำคัญเหล่านั้นจึงควรได้รับความสนใจ`,
+            `สิ่งนี้ทำให้ทุกบทมีความต่อเนื่องและช่วยให้คุณรู้สึกว่าเรื่องราวกำลังค่อย ๆ เปิดขึ้นมาอย่างเป็นธรรมชาติ`,
+          ],
+          footer: 'หน้า 7',
+        },
+        {
+          section: 'ตัวอย่างเนื้อหา',
+          title: 'บทที่ 1 (ต่อ)',
+          paragraphs: [
+            `ผู้เขียนยังชี้ให้เห็นว่า ความรู้ที่ดีไม่จำเป็นต้องซับซ้อนเสมอไป เพราะบางครั้งความเข้าใจที่ชัดเจนมากกว่าเดิมยิ่งก่อให้เกิดการเรียนรู้ที่ยั่งยืน`,
+            `นี่คือเหตุผลที่หนังสือเล่มนี้สามารถเป็นทั้งแหล่งความรู้และแรงบันดาลใจสำหรับผู้ที่กำลังเริ่มต้น`,
+          ],
+          footer: 'หน้า 8',
+        },
+        {
+          section: 'ตัวอย่างเนื้อหา',
+          title: 'บทที่ 1 (ต่อ)',
+          paragraphs: [
+            `ท้ายที่สุดแล้ว ความสำเร็จของการอ่านหนังสือเล่มนี้ไม่ได้ขึ้นอยู่กับการจำคำทั้งหมด แต่ขึ้นอยู่กับการรับรู้ว่าเราได้เรียนรู้สิ่งใดจากเรื่องราวที่กำลังอ่าน`,
+            `คุณจะพบว่าเนื้อหาจากเล่มนี้ช่วยให้คุณมีแนวทางคิดใหม่ ๆ ที่ทั้งเป็นประโยชน์และน่าสนใจ`,
+          ],
+          footer: 'หน้า 9',
+        },
+        {
+          section: 'บทสรุป',
+          title: 'บทที่ 1 สรุป',
+          paragraphs: [
+            `บทนี้สรุปแนวคิดหลักของ ${book.title} และชี้ให้เห็นว่าการเรียนรู้ที่แท้จริงเกิดขึ้นจากการเชื่อมโยงความรู้กับประสบการณ์จริง`,
+            `คุณสามารถอ่านต่อไปได้เรื่อย ๆ เพื่อประเมินว่าเล่มนี้ตอบโจทย์ความต้องการของคุณหรือไม่`,
+          ],
+          footer: 'หน้า 10',
+        },
+      ]
+    : [
+        {
+          section: 'ตัวอย่างเนื้อหา',
+          title: 'ตัวอย่างจากหนังสือ',
+          paragraphs: [
+            `นี่คือส่วนตัวอย่างสำหรับ ${book.title} ที่ช่วยให้คุณสัมผัสบรรยากาศและสไตล์การเขียนของหนังสือเล่มนี้ก่อนตัดสินใจซื้อ`,
+          ],
+          footer: 'หน้า 10',
+        },
+      ];
+
+  const currentSamplePage = samplePages[samplePageIndex] || samplePages[0];
 
   return (
     <div className="min-h-screen bg-[#F9F7F4] text-[#1A1A1A] font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif] relative selection:bg-[#C8861A] selection:text-white p-4 md:p-8">
@@ -120,7 +243,11 @@ export default function BookDetailPage({ params }) {
               </div>
 
               <div className="text-[40px] font-black text-[#C8861A] mb-8 leading-none">
-                ฿{Math.floor(book.price * 35)}
+                ฿{book.price.toFixed(2)}
+              </div>
+
+              <div className={`inline-flex items-center px-3 py-1 rounded-lg text-[12px] font-bold mb-8 ${stockClass}`}>
+                {stockLabel}
               </div>
 
               <div className="mb-10">
@@ -142,9 +269,12 @@ export default function BookDetailPage({ params }) {
               </div>
 
               <div className="flex space-x-4">
-                <button className="bg-[#C8861A] hover:bg-[#a66d13] text-white font-bold py-3.5 px-8 rounded-full shadow-md transition-all flex items-center justify-center text-[15px]">
+                <button
+                  disabled={stock <= 0}
+                  className="bg-[#C8861A] hover:bg-[#a66d13] text-white font-bold py-3.5 px-8 rounded-full shadow-md transition-all flex items-center justify-center text-[15px] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                  เพิ่มลงตะกร้า
+                  {stock <= 0 ? 'สินค้าหมด' : 'เพิ่มลงตะกร้า'}
                 </button>
                 
                 <button onClick={() => setShowSampleModal(true)} className="bg-white border border-[#e6e5e0] hover:border-[#1A1A1A] text-[#1A1A1A] font-bold py-3.5 px-8 rounded-full transition-all flex items-center justify-center text-[15px] shadow-sm">
@@ -349,7 +479,7 @@ export default function BookDetailPage({ params }) {
                        {simBook.rating}
                     </div>
                     <h4 className="font-bold text-[13px] text-[#1A1A1A] line-clamp-1 leading-tight mb-1 group-hover:text-[#C8861A] transition-colors">{simBook.title}</h4>
-                    <p className="text-[13px] font-bold text-[#C8861A]">฿{Math.floor(simBook.price * 35)}</p>
+                    <p className="text-[13px] font-bold text-[#C8861A]">฿{simBook.price.toFixed(2)}</p>
                   </Link>
                 ))}
               </div>
@@ -371,10 +501,61 @@ export default function BookDetailPage({ params }) {
                </button>
              </div>
              <div className="flex-1 overflow-y-auto p-8 bg-[#F9F7F4] flex flex-col items-center">
-               <div className="w-full max-w-xl aspect-[1/1.4] bg-white shadow-md p-12 text-center flex flex-col">
-                 <h1 className="text-3xl font-bold mb-4">{book.title}</h1>
-                 <p className="text-[#a09c92] mb-12">{book.author}</p>
-                 <div className="text-left text-[#1A1A1A] flex-1">Mock Sample Content...</div>
+               <div className="w-full max-w-xl min-h-[620px] bg-white shadow-md p-8 rounded-[1.5rem] flex flex-col">
+                 <div className="flex items-center justify-between text-[12px] text-[#807d72] mb-6">
+                   <span className="font-medium">{book.title}</span>
+                   <span>หน้า {samplePageIndex + 1}/{samplePages.length}</span>
+                 </div>
+
+                 <div className="flex-1 border-y border-[#e6e5e0] py-6">
+                   <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#C8861A] mb-3">{currentSamplePage.section}</p>
+                   <h4 className="text-[22px] font-bold text-[#1A1A1A] mb-4">{currentSamplePage.title}</h4>
+
+                   {currentSamplePage.chapters ? (
+                     <div className="space-y-3 text-[14px] leading-7 text-[#1A1A1A]">
+                       <div className="border-b border-[#e6e5e0] pb-3 mb-3 text-[13px] font-bold uppercase tracking-[0.2em] text-[#807d72]">
+                         มี {currentSamplePage.chapters.length} บท
+                       </div>
+                       {currentSamplePage.chapters.map((chapter, index) => (
+                         <div key={index} className="flex items-center justify-between border-b border-[#f1eee9] pb-2">
+                           <span className="text-[#1A1A1A]">{chapter.title}</span>
+                           <span className="text-[#807d72]">{chapter.page}</span>
+                         </div>
+                       ))}
+                     </div>
+                   ) : currentSamplePage.items ? (
+                     <ul className="space-y-3 text-[14px] leading-7 text-[#1A1A1A]">
+                       {currentSamplePage.items.map((item, index) => (
+                         <li key={index} className="flex items-start">
+                           <span className="mr-2 text-[#C8861A]">•</span>
+                           <span>{item}</span>
+                         </li>
+                       ))}
+                     </ul>
+                   ) : (
+                     <div className="space-y-4 text-[14px] leading-7 text-[#1A1A1A]">
+                       {currentSamplePage.paragraphs.map((paragraph, index) => (
+                         <p key={index}>{paragraph}</p>
+                       ))}
+                     </div>
+                   )}
+                 </div>
+
+                 <div className="mt-6 flex items-center justify-between">
+                   <button
+                     onClick={() => setSamplePageIndex((prev) => Math.max(prev - 1, 0))}
+                     className="text-[13px] font-bold text-[#5a5852] hover:text-[#C8861A] transition-colors"
+                   >
+                     ← ก่อนหน้า
+                   </button>
+                   <div className="text-[12px] text-[#807d72]">ตัวอย่าง E-Book</div>
+                   <button
+                     onClick={() => setSamplePageIndex((prev) => Math.min(prev + 1, samplePages.length - 1))}
+                     className="text-[13px] font-bold text-[#5a5852] hover:text-[#C8861A] transition-colors"
+                   >
+                     ถัดไป →
+                   </button>
+                 </div>
                </div>
              </div>
            </div>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function Navbar() {
@@ -11,6 +11,9 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [mounted, setMounted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -27,6 +30,82 @@ export default function Navbar() {
       setIsLoggedIn(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (!isSearchOpen) {
+      setSearchQuery('');
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    const trimmedQuery = searchQuery.trim();
+
+    if (!trimmedQuery) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(async () => {
+      setIsSearching(true);
+
+      try {
+        const response = await fetch('/api/books/filter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            searchQuery: trimmedQuery,
+            selectedCategory: 'All',
+            selectedBookTypes: [],
+            selectedPublisher: 'All',
+            priceMin: '',
+            priceMax: '',
+          }),
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch search results');
+        }
+
+        const data = await response.json();
+        setSearchResults(data.success ? data.books.slice(0, 6) : []);
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error('Search suggestion error:', error);
+          setSearchResults([]);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsSearching(false);
+        }
+      }
+    }, 250);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeoutId);
+    };
+  }, [isSearchOpen, searchQuery]);
+
+  const closeSearch = () => {
+    setIsSearchOpen(false);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
+  const openSearchResultsPage = () => {
+    const trimmedQuery = searchQuery.trim();
+
+    if (!trimmedQuery) {
+      return;
+    }
+
+    closeSearch();
+    window.location.assign(`/shop?search=${encodeURIComponent(trimmedQuery)}`);
+  };
 
   const categoriesData = [
     { name: 'Fiction', subcategories: ['Romance', 'Sci-Fi', 'Fantasy', 'Mystery', 'Thriller', 'Historical Fiction'] },
@@ -62,9 +141,17 @@ export default function Navbar() {
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
             <div className="flex items-center relative">
-              <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isSearchOpen ? 'w-48 opacity-100 mr-2' : 'w-0 opacity-0'}`}>
+              <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isSearchOpen ? 'w-56 opacity-100 mr-2' : 'w-0 opacity-0'}`}>
                 <input
                   type="text"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      openSearchResultsPage();
+                    }
+                  }}
                   placeholder="ค้นหาหนังสือ..."
                   className="w-full bg-white/50 border border-[#e6e5e0] backdrop-blur-sm rounded-full py-1.5 px-4 text-sm text-[#1A1A1A] focus:outline-none focus:border-primary transition-all"
                 />
@@ -75,6 +162,45 @@ export default function Navbar() {
               >
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               </button>
+
+              {isSearchOpen && searchQuery.trim() && (
+                <div className="absolute right-0 top-full mt-3 w-80 overflow-hidden rounded-3xl border border-[#e6e5e0] bg-white/95 shadow-[0_20px_60px_rgba(15,23,42,0.12)] backdrop-blur-xl z-30">
+                  {isSearching ? (
+                    <div className="px-4 py-3 text-sm text-[#807d72]">กำลังค้นหา...</div>
+                  ) : searchResults.length > 0 ? (
+                    <div className="py-2">
+                      {searchResults.map((book) => (
+                        <Link
+                          key={book.id}
+                          href={`/shop/${book.id}`}
+                          onClick={closeSearch}
+                          className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[#F2EEE7]/80"
+                        >
+                          <img
+                            src={book.image}
+                            alt={book.title}
+                            className="h-14 w-11 rounded-lg object-cover border border-[#e6e5e0]"
+                          />
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-[#1A1A1A]">{book.title}</p>
+                            <p className="truncate text-xs text-[#807d72]">{book.author}</p>
+                            <p className="text-xs font-semibold text-[#C8861A]">฿{Number(book.price).toFixed(2)}</p>
+                          </div>
+                        </Link>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={openSearchResultsPage}
+                        className="block w-full border-t border-[#e6e5e0] px-4 py-3 text-left text-sm font-semibold text-[#C8861A] transition-colors hover:bg-[#F2EEE7]/80"
+                      >
+                        ดูผลการค้นหาทั้งหมด
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="px-4 py-3 text-sm text-[#807d72]">ไม่พบหนังสือที่ตรงกับคำค้น</div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -82,7 +208,7 @@ export default function Navbar() {
         <div className="backdrop-blur-xl bg-[#ffffff]/50 border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-full px-8 py-4 flex flex-wrap justify-between items-center transition-all">
           <nav className="flex space-x-8 text-[14px] font-medium text-[#1A1A1A]">
             <Link href="/" className="hover:text-[#1A1A1A] hover:border-b-2 hover:border-primary pb-1 transition-all">หน้าหลัก</Link>
-            <Link href="/shop" className="hover:text-[#1A1A1A] hover:border-b-2 hover:border-primary pb-1 transition-all">หนังสือแนะนำ</Link>
+            <Link href="/recommended" className="hover:text-[#1A1A1A] hover:border-b-2 hover:border-primary pb-1 transition-all">หนังสือแนะนำ</Link>
             <Link href="/shop" className="hover:text-[#1A1A1A] hover:border-b-2 hover:border-primary pb-1 transition-all">เลือกซื้อหนังสือ</Link>
           </nav>
           <div className="flex items-center space-x-5 mt-4 sm:mt-0">

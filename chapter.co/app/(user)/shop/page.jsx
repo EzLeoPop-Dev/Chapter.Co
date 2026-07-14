@@ -1,12 +1,12 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import CategorySidebar from '../../components/shop/CategorySidebar';
 import ShopHeader from '../../components/shop/ShopHeader';
 import BookGrid from '../../components/shop/BookGrid';
 import BookModal from '../../components/shop/BookModal';
-import { books, categories, bookTypes, publishers } from '../../data/books';
+import { categories, bookTypes, publishers } from '../../data/books';
 
 export default function ShopPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,16 +14,74 @@ export default function ShopPage() {
   const [selectedBookTypes, setSelectedBookTypes] = useState([]);
   const [selectedPublisher, setSelectedPublisher] = useState('All');
   const [selectedBook, setSelectedBook] = useState(null);
+  const [priceMin, setPriceMin] = useState('');
+  const [priceMax, setPriceMax] = useState('');
+  const [filteredBooks, setFilteredBooks] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
+  const addToCart = (book) => {
+    const stock = Number(book?.stock || 0);
+    if (stock <= 0) {
+      alert('ขออภัย สินค้ารายการนี้หมดชั่วคราว');
+      return;
+    }
+    alert(`เพิ่ม "${book.title}" ลงตะกร้าแล้ว`);
+  };
 
+  useEffect(() => {
+    const syncSearchQueryFromUrl = () => {
+      const params = new URLSearchParams(window.location.search);
+      setSearchQuery(params.get('search') || '');
+    };
 
-  const filteredBooks = books.filter(book => {
-    const matchesCategory = selectedCategory === 'All' || book.category === selectedCategory;
-    const matchesBookType = selectedBookTypes.length === 0 || selectedBookTypes.includes(book.bookType);
-    const matchesPublisher = selectedPublisher === 'All' || book.publisher === selectedPublisher;
-    const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) || book.author.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesBookType && matchesPublisher && matchesSearch;
-  });
+    syncSearchQueryFromUrl();
+    window.addEventListener('popstate', syncSearchQueryFromUrl);
+
+    return () => {
+      window.removeEventListener('popstate', syncSearchQueryFromUrl);
+    };
+  }, []);
+
+  // Fetch filtered books from API
+  useEffect(() => {
+    const fetchFilteredBooks = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('/api/books/filter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            searchQuery,
+            selectedCategory,
+            selectedBookTypes,
+            selectedPublisher,
+            priceMin,
+            priceMax,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch books');
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          setFilteredBooks(data.books);
+        } else {
+          setError(data.error || 'Failed to fetch books');
+        }
+      } catch (err) {
+        console.error('Filter error:', err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchFilteredBooks();
+  }, [searchQuery, selectedCategory, selectedBookTypes, selectedPublisher, priceMin, priceMax]);
 
   return (
     <div className="min-h-screen bg-[#F2EEE7] text-[#1A1A1A] font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif] relative selection:bg-[#C8861A] selection:text-white p-4 md:p-8">
@@ -49,6 +107,10 @@ export default function ShopPage() {
             publishers={publishers}
             selectedPublisher={selectedPublisher}
             setSelectedPublisher={setSelectedPublisher}
+            priceMin={priceMin}
+            setPriceMin={setPriceMin}
+            priceMax={priceMax}
+            setPriceMax={setPriceMax}
           />
 
           {/* Main Content */}
@@ -93,6 +155,7 @@ export default function ShopPage() {
                 selectedCategory={selectedCategory}
                 setSearchQuery={setSearchQuery}
                 setSelectedCategory={setSelectedCategory}
+                addToCart={addToCart}
               />
               
             </div>
@@ -103,6 +166,7 @@ export default function ShopPage() {
       <BookModal 
         selectedBook={selectedBook}
         setSelectedBook={setSelectedBook}
+        addToCart={addToCart}
       />
 
     </div>

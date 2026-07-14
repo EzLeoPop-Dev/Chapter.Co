@@ -2,7 +2,19 @@
 import React from 'react';
 import Link from 'next/link';
 
-export default function BookModal({ selectedBook, setSelectedBook }) {
+export default function BookModal({ selectedBook, setSelectedBook, addToCart = () => {} }) {
+  const getStockLabel = (stock = 0) => {
+    if (stock <= 0) return 'สินค้าหมด';
+    if (stock <= 5) return `เหลือ ${stock} ชิ้น`;
+    return `พร้อมส่ง ${stock} ชิ้น`;
+  };
+
+  const getStockClass = (stock = 0) => {
+    if (stock <= 0) return 'bg-red-100 text-red-600';
+    if (stock <= 5) return 'bg-yellow-100 text-yellow-700';
+    return 'bg-green-100 text-green-700';
+  };
+
   return (
     <div className={`fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 transition-all duration-400 ${selectedBook ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
       <div className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-400 ${selectedBook ? 'opacity-100' : 'opacity-0'}`} onClick={() => setSelectedBook(null)}></div>
@@ -30,6 +42,9 @@ export default function BookModal({ selectedBook, setSelectedBook }) {
               <div className="inline-block px-3 py-1 bg-primary text-white rounded-lg text-[11px] font-bold uppercase tracking-wider mb-4">
                 {selectedBook.category}
               </div>
+              <div className={`inline-block ml-2 px-3 py-1 rounded-lg text-[11px] font-bold tracking-wider mb-4 ${getStockClass(selectedBook.stock)}`}>
+                {getStockLabel(selectedBook.stock)}
+              </div>
               <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] leading-tight mb-2">{selectedBook.title}</h2>
               <p className="text-xl text-[#807d72] font-medium mb-6">By <span className="text-[#1A1A1A]">{selectedBook.author}</span></p>
               
@@ -49,7 +64,7 @@ export default function BookModal({ selectedBook, setSelectedBook }) {
                 <div className="w-px h-10 bg-[#e6e5e0]"></div>
                 <div className="flex flex-col">
                   <span className="text-[12px] text-[#a09c92] font-medium uppercase tracking-wider mb-1">Price</span>
-                  <div className="text-[#C8861A] font-bold text-xl">${selectedBook.price.toFixed(2)}</div>
+                  <div className="text-[#C8861A] font-bold text-xl">฿{selectedBook.price.toFixed(2)}</div>
                 </div>
               </div>
 
@@ -61,9 +76,17 @@ export default function BookModal({ selectedBook, setSelectedBook }) {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 mt-auto pt-6">
-              <button className="flex-1 bg-gradient-to-r from-primary to-primary hover:from-primary hover:to-primary text-white font-bold py-3.5 rounded-2xl shadow-lg hover:shadow-primary/40 transition-all hover:-translate-y-1 flex items-center justify-center text-[14px]">
+              <button
+                onClick={() => {
+                  if (selectedBook.stock <= 0) return;
+                  addToCart(selectedBook);
+                  setSelectedBook(null);
+                }}
+                disabled={selectedBook.stock <= 0}
+                className="flex-1 bg-gradient-to-r from-primary to-primary hover:from-primary hover:to-primary text-white font-bold py-3.5 rounded-2xl shadow-lg hover:shadow-primary/40 transition-all hover:-translate-y-1 flex items-center justify-center text-[14px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-                เพิ่มลงตะกร้า - ${selectedBook.price.toFixed(2)}
+                {selectedBook.stock <= 0 ? 'สินค้าหมด' : `เพิ่มลงตะกร้า - ฿${selectedBook.price.toFixed(2)}`}
               </button>
               <Link href={`/shop/${selectedBook.id}`} className="flex-1 bg-white border-2 border-[#e6e5e0] hover:border-primary hover:text-primary text-[#1A1A1A] font-bold py-3.5 rounded-2xl transition-all hover:-translate-y-1 flex items-center justify-center text-[14px] shadow-sm">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
