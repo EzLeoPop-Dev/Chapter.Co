@@ -2,32 +2,32 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
-import { books } from '../../data/books';
-
-const CART_STORAGE_KEY = 'chapter-cart-items';
-const initialCartItems = [
-  { ...books[0], qty: 1 },
-  { ...books[8], qty: 2 }
-];
+import { readCartItems, writeCartItems } from '@/utils/cartStorage';
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState(() => {
-    if (typeof window === 'undefined') return initialCartItems;
-
-    try {
-      const saved = window.localStorage.getItem(CART_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : initialCartItems;
-    } catch {
-      return initialCartItems;
-    }
-  });
+  const [cartItems, setCartItems] = useState(() => readCartItems());
   const [summary, setSummary] = useState(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
-    }
+    writeCartItems(cartItems);
   }, [cartItems]);
+
+  useEffect(() => {
+    const syncCart = () => {
+      const nextItems = readCartItems();
+      setCartItems((prevItems) => {
+        const prevSerialized = JSON.stringify(prevItems);
+        const nextSerialized = JSON.stringify(nextItems);
+        return prevSerialized === nextSerialized ? prevItems : nextItems;
+      });
+    };
+    window.addEventListener('chapter-cart-updated', syncCart);
+    window.addEventListener('storage', syncCart);
+    return () => {
+      window.removeEventListener('chapter-cart-updated', syncCart);
+      window.removeEventListener('storage', syncCart);
+    };
+  }, []);
 
   useEffect(() => {
     const loadSummary = async () => {
@@ -58,8 +58,12 @@ export default function CartPage() {
   }, [cartItems]);
 
   const updateQty = (id, newQty) => {
-    if (newQty < 1) return;
-    setCartItems((prev) => prev.map((item) => (item.id === id ? { ...item, qty: newQty } : item)));
+    const item = cartItems.find((cartItem) => cartItem.id === id);
+    if (!item) return;
+    const stock = Number(item.stock || 0);
+    const safeQty = stock > 0 ? Math.min(newQty, stock) : newQty;
+    if (safeQty < 1) return;
+    setCartItems((prev) => prev.map((cartItem) => (cartItem.id === id ? { ...cartItem, qty: safeQty } : cartItem)));
   };
 
   const removeItem = (id) => {

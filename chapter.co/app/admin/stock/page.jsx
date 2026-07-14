@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useMemo, useState } from 'react';
 
+const FALLBACK_BOOK_IMAGE = 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80';
+
 export default function StockManagementPage() {
   const userRole = 'staff';
 
@@ -150,6 +152,7 @@ export default function StockManagementPage() {
             <thead>
               <tr className="border-b border-[#e6e5e0] text-sm text-[#a09c92]">
                 <th className="pb-3 px-4 font-bold">รหัส</th>
+                <th className="pb-3 px-4 font-bold">รูปปก</th>
                 <th className="pb-3 px-4 font-bold">ชื่อหนังสือ</th>
                 <th className="pb-3 px-4 font-bold">หมวดหมู่</th>
                 <th className="pb-3 px-4 font-bold text-right">ราคา</th>
@@ -162,6 +165,13 @@ export default function StockManagementPage() {
               {filteredBooks.map((book) => (
                 <tr key={book.id} className="hover:bg-white/50 transition-colors">
                   <td className="py-4 px-4 text-sm font-medium text-[#a09c92]">{book.id}</td>
+                  <td className="py-4 px-4">
+                    <img
+                      src={book.image || FALLBACK_BOOK_IMAGE}
+                      alt={book.title}
+                      className="w-12 h-16 rounded-md object-cover border border-[#e6e5e0]"
+                    />
+                  </td>
                   <td className="py-4 px-4 font-bold text-[#1A1A1A]">{book.title}</td>
                   <td className="py-4 px-4 text-sm text-[#1A1A1A]">{book.category}</td>
                   <td className="py-4 px-4 text-sm font-bold text-[#C8861A] text-right">฿{Number(book.price).toLocaleString('th-TH')}</td>
@@ -195,7 +205,7 @@ export default function StockManagementPage() {
               ))}
               {filteredBooks.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-10 text-center text-sm text-[#a09c92]">
+                  <td colSpan={8} className="py-10 text-center text-sm text-[#a09c92]">
                     ไม่พบหนังสือตามเงื่อนไขที่เลือก
                   </td>
                 </tr>

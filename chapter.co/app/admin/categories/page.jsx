@@ -6,12 +6,15 @@ const EMPTY_BOOK_FORM = {
   author: '',
   publisher: '',
   category: '',
+  image: '',
   isbn: '',
   pages: '',
   description: '',
   price: '',
   stock: '',
 };
+
+const FALLBACK_BOOK_IMAGE = 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80';
 
 export default function AdminCategoriesPage() {
   const [activeTab, setActiveTab] = useState('categories');
@@ -123,6 +126,7 @@ export default function AdminCategoriesPage() {
       author: book.author || '',
       publisher: book.publisher || '',
       category: book.category || '',
+      image: book.image || '',
       isbn: book.isbn || '',
       pages: book.pages || '',
       description: book.description || '',
@@ -332,6 +336,7 @@ export default function AdminCategoriesPage() {
                   <thead>
                     <tr className="border-b border-[#e6e5e0] text-sm text-[#a09c92]">
                       <th className="pb-3 px-4 font-bold">รหัส</th>
+                      <th className="pb-3 px-4 font-bold">รูปปก</th>
                       <th className="pb-3 px-4 font-bold">ชื่อหนังสือ</th>
                       <th className="pb-3 px-4 font-bold">หมวดหมู่</th>
                       <th className="pb-3 px-4 font-bold">สำนักพิมพ์</th>
@@ -343,6 +348,13 @@ export default function AdminCategoriesPage() {
                     {filteredBooks.map((book) => (
                       <tr key={book.id} className="hover:bg-white/50 transition-colors">
                         <td className="py-4 px-4 text-sm font-medium text-[#a09c92]">{book.id}</td>
+                        <td className="py-4 px-4">
+                          <img
+                            src={book.image || FALLBACK_BOOK_IMAGE}
+                            alt={book.title}
+                            className="w-12 h-16 rounded-md object-cover border border-[#e6e5e0]"
+                          />
+                        </td>
                         <td className="py-4 px-4 font-bold text-[#1A1A1A]">{book.title}</td>
                         <td className="py-4 px-4 text-sm text-[#1A1A1A]">{book.category}</td>
                         <td className="py-4 px-4 text-sm text-[#1A1A1A]">{book.publisher}</td>
@@ -356,6 +368,7 @@ export default function AdminCategoriesPage() {
                                 author: book.author || '',
                                 publisher: book.publisher || '',
                                 category: book.category || '',
+                                image: book.image || '',
                                 isbn: book.isbn || '',
                                 pages: book.pages || '',
                                 description: book.description || '',
@@ -381,7 +394,7 @@ export default function AdminCategoriesPage() {
                     ))}
                     {filteredBooks.length === 0 && (
                       <tr>
-                        <td colSpan={6} className="py-10 text-center text-sm text-[#a09c92]">
+                        <td colSpan={7} className="py-10 text-center text-sm text-[#a09c92]">
                           ไม่พบหนังสือตามเงื่อนไขที่เลือก
                         </td>
                       </tr>
@@ -416,9 +429,11 @@ export default function AdminCategoriesPage() {
                   {booksInCategory.map((book) => (
                     <div key={book.id} className="flex justify-between items-center p-4 border border-[#e6e5e0] rounded-xl hover:border-primary transition-colors">
                       <div className="flex gap-4 items-center">
-                        <div className="w-12 h-16 bg-[#F2EEE7] rounded-md flex items-center justify-center text-xs text-[#a09c92] font-bold">
-                          ปก
-                        </div>
+                        <img
+                          src={book.image || FALLBACK_BOOK_IMAGE}
+                          alt={book.title}
+                          className="w-12 h-16 rounded-md object-cover border border-[#e6e5e0]"
+                        />
                         <div>
                           <h4 className="font-bold text-[#1A1A1A]">{book.title}</h4>
                           <p className="text-sm text-[#a09c92]">รหัส: {book.id} • สำนักพิมพ์: {book.publisher}</p>
@@ -581,6 +596,24 @@ export default function AdminCategoriesPage() {
                     <input type="text" value={bookFormData.title} onChange={e => setBookFormData({...bookFormData, title: e.target.value})} className="w-full px-3 py-2 border border-[#e6e5e0] rounded-xl focus:outline-none focus:border-primary text-sm" />
                   </div>
                   <div>
+                    <label className="block text-sm font-bold text-[#1A1A1A] mb-1">ลิงก์รูปปก <span className="text-red-500">*</span></label>
+                    <input
+                      type="url"
+                      value={bookFormData.image}
+                      onChange={e => setBookFormData({...bookFormData, image: e.target.value})}
+                      placeholder="https://..."
+                      className="w-full px-3 py-2 border border-[#e6e5e0] rounded-xl focus:outline-none focus:border-primary text-sm"
+                    />
+                    <p className="text-xs text-[#a09c92] mt-1">ต้องใส่รูปปกตอนเพิ่มหนังสือใหม่</p>
+                  </div>
+                  <div className="w-24 h-32 rounded-lg border border-[#e6e5e0] bg-[#F2EEE7] overflow-hidden">
+                    <img
+                      src={bookFormData.image || FALLBACK_BOOK_IMAGE}
+                      alt="ตัวอย่างรูปปก"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
                     <label className="block text-sm font-bold text-[#1A1A1A] mb-1">ผู้แต่ง</label>
                     <input type="text" value={bookFormData.author} onChange={e => setBookFormData({...bookFormData, author: e.target.value})} className="w-full px-3 py-2 border border-[#e6e5e0] rounded-xl focus:outline-none focus:border-primary text-sm" />
                   </div>
@@ -638,7 +671,10 @@ export default function AdminCategoriesPage() {
               </button>
               <button 
                 onClick={async () => {
-                  if (!(bookFormData.title && bookFormData.price)) return;
+                  const hasRequiredFields = editingBookId
+                    ? (bookFormData.title && bookFormData.price)
+                    : (bookFormData.title && bookFormData.price && bookFormData.image);
+                  if (!hasRequiredFields) return;
 
                   let success = false;
                   if (editingBookId) {
@@ -658,8 +694,8 @@ export default function AdminCategoriesPage() {
                     setEditingBookId(null);
                   }
                 }} 
-                className={`px-5 py-2.5 rounded-xl font-bold transition-colors text-sm ${(bookFormData.title && bookFormData.price) ? 'bg-primary hover:bg-[#b07515] text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
-                disabled={!(bookFormData.title && bookFormData.price)}
+                className={`px-5 py-2.5 rounded-xl font-bold transition-colors text-sm ${((editingBookId && bookFormData.title && bookFormData.price) || (!editingBookId && bookFormData.title && bookFormData.price && bookFormData.image)) ? 'bg-primary hover:bg-[#b07515] text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+                disabled={!((editingBookId && bookFormData.title && bookFormData.price) || (!editingBookId && bookFormData.title && bookFormData.price && bookFormData.image))}
               >
                 บันทึกข้อมูล
               </button>
@@ -690,9 +726,11 @@ export default function AdminCategoriesPage() {
                   {booksInPublisher.map((book) => (
                     <div key={book.id} className="flex justify-between items-center p-4 border border-[#e6e5e0] rounded-xl hover:border-purple-500 transition-colors">
                       <div className="flex gap-4 items-center">
-                        <div className="w-12 h-16 bg-[#F2EEE7] rounded-md flex items-center justify-center text-xs text-[#a09c92] font-bold">
-                          ปก
-                        </div>
+                        <img
+                          src={book.image || FALLBACK_BOOK_IMAGE}
+                          alt={book.title}
+                          className="w-12 h-16 rounded-md object-cover border border-[#e6e5e0]"
+                        />
                         <div>
                           <h4 className="font-bold text-[#1A1A1A]">{book.title}</h4>
                           <p className="text-sm text-[#a09c92]">รหัส: {book.id} • หมวดหมู่: {book.category}</p>

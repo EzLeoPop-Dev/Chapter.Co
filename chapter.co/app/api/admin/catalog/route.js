@@ -1,4 +1,4 @@
-import { catalogMutations, getCatalogSnapshot } from './store';
+import { catalogMutations, getCatalogSnapshot, persistCatalogToBooksJson } from './store';
 
 export async function GET() {
   try {
@@ -47,6 +47,8 @@ export async function POST(request) {
       default:
         return Response.json({ success: false, error: 'Unsupported action' }, { status: 400 });
     }
+
+    await persistCatalogToBooksJson();
 
     return Response.json({
       success: true,

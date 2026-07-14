@@ -3,6 +3,7 @@ import React, { useState, useEffect, use, useRef } from 'react';
 import Link from 'next/link';
 import { books } from '../../../data/books';
 import Navbar from '../../../components/Navbar';
+import { addBookToCart } from '@/utils/cartStorage';
 
 const WISHLIST_STORAGE_KEY = 'chapter-wishlist-ids';
 
@@ -77,6 +78,20 @@ export default function BookDetailPage({ params }) {
 
     writeWishlistIds(nextIds);
     setIsFavorite(!exists);
+  };
+
+  const handleAddToCart = () => {
+    if (!book) return;
+    const result = addBookToCart(book, 1);
+    if (!result.ok && result.reason === 'out-of-stock') {
+      alert('ขออภัย สินค้ารายการนี้หมดชั่วคราว');
+      return;
+    }
+    if (!result.ok && result.reason === 'exceed-stock') {
+      alert(`เพิ่มได้สูงสุด ${result.maxQty} ชิ้น ตามจำนวนสต๊อก`);
+      return;
+    }
+    alert(`เพิ่ม "${book.title}" ลงตะกร้าแล้ว`);
   };
 
   if (!book) {
@@ -305,6 +320,7 @@ export default function BookDetailPage({ params }) {
 
               <div className="flex space-x-4">
                 <button
+                  onClick={handleAddToCart}
                   disabled={stock <= 0}
                   className="bg-[#C8861A] hover:bg-[#a66d13] text-white font-bold py-3.5 px-8 rounded-full shadow-md transition-all flex items-center justify-center text-[15px] disabled:opacity-50 disabled:cursor-not-allowed"
                 >

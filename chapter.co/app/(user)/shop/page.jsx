@@ -7,6 +7,7 @@ import ShopHeader from '../../components/shop/ShopHeader';
 import BookGrid from '../../components/shop/BookGrid';
 import BookModal from '../../components/shop/BookModal';
 import { categories, bookTypes, publishers } from '../../data/books';
+import { addBookToCart } from '@/utils/cartStorage';
 
 export default function ShopPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,9 +22,13 @@ export default function ShopPage() {
   const [error, setError] = useState(null);
 
   const addToCart = (book) => {
-    const stock = Number(book?.stock || 0);
-    if (stock <= 0) {
+    const result = addBookToCart(book, 1);
+    if (!result.ok && result.reason === 'out-of-stock') {
       alert('ขออภัย สินค้ารายการนี้หมดชั่วคราว');
+      return;
+    }
+    if (!result.ok && result.reason === 'exceed-stock') {
+      alert(`เพิ่มได้สูงสุด ${result.maxQty} ชิ้น ตามจำนวนสต๊อก`);
       return;
     }
     alert(`เพิ่ม "${book.title}" ลงตะกร้าแล้ว`);
