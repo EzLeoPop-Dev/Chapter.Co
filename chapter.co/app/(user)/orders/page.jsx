@@ -1,9 +1,15 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
+import { authService } from '@/utils/authService';
 
 export default function OrdersPage() {
+  const router = useRouter();
+  const fileInputRef = useRef(null);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("ทั้งหมด");
 
   const tabs = [
@@ -52,6 +58,56 @@ export default function OrdersPage() {
     }
   ];
 
+  // ดึงข้อมูล User เมื่อโหลดหน้าเว็บ
+  useEffect(() => {
+    const currentUser = authService.getCurrentUser();
+    if (!currentUser) {
+      router.push('/auth/login');
+    } else {
+      setUser(currentUser);
+    }
+    setIsLoading(false);
+  }, [router]);
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    authService.logout();
+    router.push('/auth/login');
+  };
+
+  // ฟังก์ชันอัปโหลดรูปภาพ
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert('ขนาดไฟล์รูปภาพต้องไม่เกิน 2MB');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        const result = authService.updateUserProfile(user.userId, { profileImage: base64String });
+        if (result.success) {
+          setUser(result.user);
+        } else {
+          alert('เกิดข้อผิดพลาดในการเปลี่ยนรูปโปรไฟล์');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
+  };
+
+  if (isLoading || !user) {
+    return <div className="min-h-screen bg-[#F2EEE7] flex items-center justify-center font-bold">Loading...</div>;
+  }
+
+  const avatarLetter = user.name ? user.name.charAt(0).toUpperCase() : 'U';
+
   const filteredOrders = activeTab === "ทั้งหมด" 
     ? orders 
     : orders.filter(order => order.status === activeTab);
@@ -69,19 +125,48 @@ export default function OrdersPage() {
           {/* Sidebar Menu */}
           <aside className="w-full md:w-64 flex-shrink-0 h-full overflow-y-auto hide-scrollbar pb-10">
             <div className="bg-white/70 backdrop-blur-xl border border-white/80 rounded-[2rem] shadow-sm p-4">
+              
               <div className="flex flex-col items-center p-6 border-b border-[#e6e5e0] mb-4">
-                <div className="w-20 h-20 bg-gradient-to-tr from-primary to-primary rounded-full text-white flex items-center justify-center text-3xl font-black mb-4 shadow-md">
-                  S
+                <div 
+                  onClick={triggerFileInput}
+                  className="relative w-20 h-20 rounded-full mb-4 shadow-md cursor-pointer group overflow-hidden border-2 border-transparent hover:border-primary transition-all"
+                  title="คลิกเพื่อเปลี่ยนรูปโปรไฟล์"
+                >
+                  {user.profileImage ? (
+                    <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-tr from-primary to-primary text-white flex items-center justify-center text-3xl font-black uppercase">
+                      {avatarLetter}
+                    </div>
+                  )}
+                  
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-white text-[10px] font-bold">เปลี่ยนรูป</span>
+                  </div>
                 </div>
-                <h3 className="font-bold text-lg text-center">สมชาย รักการอ่าน</h3>
-                <p className="text-sm text-[#a09c92]">somchai@example.com</p>
+
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                  accept="image/png, image/jpeg, image/jpg"
+                  className="hidden" 
+                />
+
+                <h3 className="font-bold text-lg text-center">{user.name}</h3>
+                <p className="text-sm text-[#a09c92]">{user.email}</p>
               </div>
+
               <ul className="space-y-2 font-bold text-sm">
                 <li><Link href="/profile" className="block px-4 py-3 rounded-xl text-[#1A1A1A] hover:bg-white transition-colors">ข้อมูลส่วนตัว</Link></li>
                 <li><Link href="/orders" className="block px-4 py-3 rounded-xl bg-orange-50 text-primary transition-colors">ประวัติการสั่งซื้อ</Link></li>
                 <li><Link href="/wishlist" className="block px-4 py-3 rounded-xl text-[#1A1A1A] hover:bg-white transition-colors">หนังสือที่อยากได้</Link></li>
                 <li><Link href="/library" className="block px-4 py-3 rounded-xl text-[#1A1A1A] hover:bg-white transition-colors">คลัง E-book ของฉัน</Link></li>
-                <li className="pt-4 mt-4 border-t border-[#e6e5e0]"><Link href="/login" className="block w-full text-left px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-colors">ออกจากระบบ</Link></li>
+                <li className="pt-4 mt-4 border-t border-[#e6e5e0]">
+                  <button onClick={handleLogout} className="block w-full text-left px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-colors">
+                    ออกจากระบบ
+                  </button>
+                </li>
               </ul>
             </div>
           </aside>

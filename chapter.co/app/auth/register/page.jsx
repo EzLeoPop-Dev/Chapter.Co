@@ -1,6 +1,38 @@
+"use client";
 import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { authService } from '@/utils/authService'; // เช็ค path ให้ตรงกับโปรเจกต์ของคุณ
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    // จำลองการโหลดนิดหน่อยให้ดูสมจริง
+    setTimeout(() => {
+      const result = authService.register(formData.name, formData.email, formData.password);
+      
+      if (result.success) {
+        alert('ลงทะเบียนสำเร็จ! ระบบจะพากลับไปหน้าเข้าสู่ระบบ');
+        router.push('/auth/login'); // เปลี่ยน path ให้ตรงกับหน้า login ของคุณ
+      } else {
+        setError(result.message);
+        setIsLoading(false);
+      }
+    }, 500);
+  };
+
   return (
     <div className="min-h-screen flex bg-[#F2EEE7] text-[#1A1A1A] selection:bg-[#C8861A] selection:text-white font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif]">
       
@@ -38,7 +70,13 @@ export default function RegisterPage() {
             <p className="text-[#1A1A1A]">Join Chapter.Co today</p>
           </div>
 
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            {error && (
+              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl text-center">
+                {error}
+              </div>
+            )}
+
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-[#1A1A1A] mb-1">
                 Full Name
@@ -46,6 +84,8 @@ export default function RegisterPage() {
               <input
                 id="name"
                 type="text"
+                value={formData.name}
+                onChange={handleChange}
                 className="w-full px-4 py-3 rounded-2xl bg-white/50 border border-[#e6e5e0] text-[#1A1A1A] placeholder-[#a09c92] focus:outline-none focus:ring-2 focus:ring-primary transition-all backdrop-blur-sm"
                 placeholder="John Doe"
                 required
@@ -59,6 +99,8 @@ export default function RegisterPage() {
               <input
                 id="email"
                 type="email"
+                value={formData.email}
+                onChange={handleChange}
                 className="w-full px-4 py-3 rounded-2xl bg-white/50 border border-[#e6e5e0] text-[#1A1A1A] placeholder-[#a09c92] focus:outline-none focus:ring-2 focus:ring-primary transition-all backdrop-blur-sm"
                 placeholder="you@example.com"
                 required
@@ -72,6 +114,8 @@ export default function RegisterPage() {
               <input
                 id="password"
                 type="password"
+                value={formData.password}
+                onChange={handleChange}
                 className="w-full px-4 py-3 rounded-2xl bg-white/50 border border-[#e6e5e0] text-[#1A1A1A] placeholder-[#a09c92] focus:outline-none focus:ring-2 focus:ring-primary transition-all backdrop-blur-sm"
                 placeholder="••••••••"
                 required
@@ -80,9 +124,10 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              className="w-full py-3.5 px-4 mt-4 rounded-2xl bg-gradient-to-r from-primary to-primary text-white font-medium hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-300"
+              disabled={isLoading}
+              className="w-full py-3.5 px-4 mt-4 rounded-2xl bg-gradient-to-r from-primary to-primary text-white font-medium hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0"
             >
-              Sign Up
+              {isLoading ? 'Signing Up...' : 'Sign Up'}
             </button>
           </form>
 

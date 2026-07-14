@@ -1,7 +1,44 @@
 "use client";
 import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { authService } from '@/utils/authService'; 
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    setTimeout(() => {
+      const result = authService.login(formData.email, formData.password);
+      
+      if (result.success) {
+        // เช็ค Role จาก session ที่ส่งกลับมา
+        const userRole = result.user.role;
+        
+        // แยกว่าจะให้ไปหน้าไหน
+        if (userRole === 'ADMIN' || userRole === 'STAFF') {
+          router.push('/staff/dashboard');
+        } else {
+          router.push('/'); // ถ้าเป็น CUSTOMER (หรือค่าอื่นๆ) ให้ไปหน้าแรก
+        }
+      } else {
+        setError(result.message);
+        setIsLoading(false);
+      }
+    }, 500);
+  };
+
   return (
     <div className="min-h-screen flex bg-[#F2EEE7] text-[#1A1A1A] selection:bg-[#C8861A] selection:text-white font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif]">
 
@@ -24,7 +61,6 @@ export default function LoginPage() {
       {/* Right Side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
 
-        {/* Background Decorative Blobs */}
         <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob"></div>
         <div className="absolute top-[20%] right-[-5%] w-96 h-96 bg-amber-200 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob animation-delay-2000"></div>
         <div className="absolute bottom-[-10%] left-[20%] w-96 h-96 bg-tertiary rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob"></div>
@@ -39,7 +75,13 @@ export default function LoginPage() {
             <p className="text-[#1A1A1A]">Sign in to continue your journey</p>
           </div>
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {error && (
+              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl text-center">
+                {error}
+              </div>
+            )}
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-[#1A1A1A] mb-1">
                 Email Address
@@ -47,6 +89,8 @@ export default function LoginPage() {
               <input
                 id="email"
                 type="email"
+                value={formData.email}
+                onChange={handleChange}
                 className="w-full px-4 py-3 rounded-2xl bg-white/50 border border-[#e6e5e0] text-[#1A1A1A] placeholder-[#a09c92] focus:outline-none focus:ring-2 focus:ring-primary transition-all backdrop-blur-sm"
                 placeholder="you@example.com"
                 required
@@ -65,6 +109,8 @@ export default function LoginPage() {
               <input
                 id="password"
                 type="password"
+                value={formData.password}
+                onChange={handleChange}
                 className="w-full px-4 py-3 rounded-2xl bg-white/50 border border-[#e6e5e0] text-[#1A1A1A] placeholder-[#a09c92] focus:outline-none focus:ring-2 focus:ring-primary transition-all backdrop-blur-sm"
                 placeholder="••••••••"
                 required
@@ -82,17 +128,13 @@ export default function LoginPage() {
               </label>
             </div>
 
-            <Link
-              href="/"
-              onClick={() => {
-                if (typeof window !== 'undefined') {
-                  localStorage.setItem('isLoggedIn', 'true');
-                }
-              }}
-              className="flex justify-center w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-primary to-primary text-white font-medium hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-300"
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="flex justify-center w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-primary to-primary text-white font-medium hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0"
             >
-              Sign In
-            </Link>
+              {isLoading ? 'Signing In...' : 'Sign In'}
+            </button>
           </form>
 
           <p className="mt-8 text-center text-sm text-[#1A1A1A]">
