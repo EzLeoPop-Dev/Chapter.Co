@@ -1,6 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./components/css/globals.css";
-import GlobalFooter from "./components/shared/GlobalFooter";
+import ConditionalFooter from "./components/shared/ConditionalFooter";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
     >
       <body className="min-h-full flex flex-col">
         {children}
-        <GlobalFooter />
+        <ConditionalFooter />
       </body>
     </html>
   );
