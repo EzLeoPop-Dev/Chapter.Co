@@ -1,6 +1,32 @@
+"use client";
 import Link from 'next/link';
+import { useState } from 'react';
+import { authService } from '@/utils/authService';
 
 export default function ForgotPasswordPage() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState({ type: '', message: '' }); // เก็บสถานะ success หรือ error
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setStatus({ type: '', message: '' });
+    setIsLoading(true);
+
+    // จำลองเวลาโหลดนิดหน่อยให้ดูสมจริง
+    setTimeout(() => {
+      const result = authService.sendResetLink(email);
+      
+      if (result.success) {
+        setStatus({ type: 'success', message: result.message });
+        setEmail(''); // ล้างช่องกรอกอีเมลหลังจากส่งสำเร็จ
+      } else {
+        setStatus({ type: 'error', message: result.message });
+      }
+      setIsLoading(false);
+    }, 500);
+  };
+
   return (
     <div className="min-h-screen flex bg-[#F2EEE7] text-[#1A1A1A] selection:bg-[#C8861A] selection:text-white font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif]">
       
@@ -37,7 +63,19 @@ export default function ForgotPasswordPage() {
             <p className="text-[#1A1A1A] text-sm">Enter your email and we'll send you a link to reset your password.</p>
           </div>
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            
+            {/* แสดงข้อความ Error หรือ Success */}
+            {status.message && (
+              <div className={`p-3 text-sm rounded-xl text-center border ${
+                status.type === 'success' 
+                  ? 'text-green-700 bg-green-50 border-green-200' 
+                  : 'text-red-600 bg-red-50 border-red-100'
+              }`}>
+                {status.message}
+              </div>
+            )}
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-[#1A1A1A] mb-1">
                 Email Address
@@ -45,6 +83,8 @@ export default function ForgotPasswordPage() {
               <input
                 id="email"
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-2xl bg-white/50 border border-[#e6e5e0] text-[#1A1A1A] placeholder-[#a09c92] focus:outline-none focus:ring-2 focus:ring-primary transition-all backdrop-blur-sm"
                 placeholder="you@example.com"
                 required
@@ -53,9 +93,10 @@ export default function ForgotPasswordPage() {
 
             <button
               type="submit"
-              className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-primary to-primary text-white font-medium hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-300"
+              disabled={isLoading}
+              className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-primary to-primary text-white font-medium hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:hover:translate-y-0"
             >
-              Send Reset Link
+              {isLoading ? 'Sending...' : 'Send Reset Link'}
             </button>
           </form>
 
