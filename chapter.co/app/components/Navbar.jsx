@@ -95,7 +95,7 @@ export default function Navbar() {
               <>
                 {/* ปุ่มเข้า Dashboard (แสดงเฉพาะ ADMIN และ STAFF) */}
                 {(user?.role === 'ADMIN' || user?.role === 'STAFF') && (
-                  <Link href="/staff/dashboard" title="ระบบจัดการหลังร้าน" className="text-[#1A1A1A] hover:text-primary transition-colors p-2 rounded-full hover:bg-white/60">
+                  <Link href="/admin/dashboard" title="ระบบจัดการหลังร้าน" className="text-[#1A1A1A] hover:text-primary transition-colors p-2 rounded-full hover:bg-white/60">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                   </Link>
                 )}

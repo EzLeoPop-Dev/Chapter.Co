@@ -28,7 +28,7 @@ export default function LoginPage() {
         
         // แยกว่าจะให้ไปหน้าไหน
         if (userRole === 'ADMIN' || userRole === 'STAFF') {
-          router.push('/staff/dashboard');
+          router.push('/admin/dashboard');
         } else {
           router.push('/'); // ถ้าเป็น CUSTOMER (หรือค่าอื่นๆ) ให้ไปหน้าแรก
         }

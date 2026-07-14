@@ -1,14 +1,37 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { authService } from '@/utils/authService';
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
 
-  // จำลองระบบ Role-Based Access Control (RBAC)
-  // ทดลองเปลี่ยนเป็น 'staff' ดูได้เลยครับ
-  const userRole = 'admin';
+
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const currentUser = authService.getCurrentUser();
+    
+    if (!currentUser) {
+      router.push('/auth/login');
+    } else if (currentUser.role === 'CUSTOMER') {
+      router.push('/');
+    } else {
+      setUser(currentUser);
+    }
+    
+    setIsLoading(false);
+  }, [router]);
+
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    authService.logout();
+    router.push('/auth/login');
+  };
 
   const menuItems = [
     // --- ADMIN ONLY ---
@@ -26,9 +49,14 @@ export default function AdminLayout({ children }) {
     { category: 'STAFF FEATURES', reqRole: 'staff', name: 'จัดการรีวิว', path: '/admin/reviews', icon: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z' },
   ];
 
-  // กรองเมนูตามสิทธิ์ (admin เห็นหมด, staff เห็นแค่ staff)
+  if (isLoading || !user) {
+    return <div className="min-h-screen bg-[#F2EEE7] flex items-center justify-center font-bold">Loading...</div>;
+  }
+
+  const normalizedRole = user.role.toLowerCase();
+
   const visibleMenus = menuItems.filter(item =>
-    userRole === 'admin' ? true : item.reqRole === 'staff'
+    normalizedRole === 'admin' ? true : item.reqRole === 'staff'
   );
 
   // จัดกลุ่มเมนู
@@ -37,6 +65,9 @@ export default function AdminLayout({ children }) {
     acc[item.category].push(item);
     return acc;
   }, {});
+
+  // ดึงตัวอักษรตัวแรกมาทำเป็น Avatar ถ้ายังไม่มีรูปภาพ
+  const avatarLetter = user.name ? user.name.charAt(0).toUpperCase() : 'A';
 
   return (
     <div className="min-h-screen bg-[#F2EEE7] text-[#1A1A1A] font-[-apple-system,BlinkMacSystemFont,'Inter','Segoe_UI',Roboto,sans-serif] relative selection:bg-[#C8861A] selection:text-white flex overflow-hidden print:bg-white print:overflow-visible">
@@ -49,7 +80,7 @@ export default function AdminLayout({ children }) {
         <div className="p-6 border-b border-[#e6e5e0] flex items-center justify-center flex-col relative">
           <span className="text-2xl font-normal tracking-[-0.48px] bg-clip-text text-transparent bg-gradient-to-r from-[#1A1A1A] to-[#1A1A1A] mb-1">Chapter.Co</span>
           <span className="text-[10px] font-bold bg-primary text-white px-2 py-0.5 rounded-md uppercase tracking-wider">
-            {userRole === 'admin' ? 'System Admin' : 'Staff Space'}
+            {user.role} Space
           </span>
         </div>
 
@@ -78,19 +109,27 @@ export default function AdminLayout({ children }) {
           </nav>
         </div>
 
+        {/* --- ส่วน Profile ด้านล่าง Sidebar แบบอัปเดตใหม่ --- */}
         <div className="p-4 border-t border-[#e6e5e0]">
           <div className="flex items-center px-2 mb-4">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-sm bg-gradient-to-tr from-primary to-primary`}>
-              {userRole === 'admin' ? 'A' : 'S'}
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-sm bg-gradient-to-tr from-primary to-primary overflow-hidden`}>
+              {user.profileImage ? (
+                <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                avatarLetter
+              )}
             </div>
-            <div className="ml-3">
-              <p className="text-sm font-bold text-[#1A1A1A]">{userRole === 'admin' ? 'ผู้ดูแลระบบ' : 'พนักงาน'}</p>
-              <p className="text-xs font-medium text-[#a09c92]">{userRole}@chapter.co</p>
+            <div className="ml-3 overflow-hidden">
+              <p className="text-sm font-bold text-[#1A1A1A] truncate">{user.name}</p>
+              <p className="text-xs font-medium text-[#a09c92] truncate">{user.email}</p>
             </div>
           </div>
-          <Link href="/login" className="w-full flex items-center justify-center px-4 py-2.5 bg-red-50 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-sm font-bold transition-colors">
+          <button 
+            onClick={handleLogout} 
+            className="w-full flex items-center justify-center px-4 py-2.5 bg-red-50 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-sm font-bold transition-colors"
+          >
             ออกจากระบบ
-          </Link>
+          </button>
         </div>
       </aside>
 
@@ -98,7 +137,7 @@ export default function AdminLayout({ children }) {
       <div className="flex-1 ml-[18rem] flex flex-col min-h-screen relative z-10 p-4 print:ml-0 print:p-0">
         {/* Floating Topbar */}
         <header className="h-16 bg-white/70 backdrop-blur-xl border border-white/80 rounded-2xl flex items-center justify-between px-6 mb-6 shadow-sm sticky top-4 z-40 print:hidden">
-          <h1 className="text-lg font-bold text-[#1A1A1A]">Cheapter.Admin Dashboard</h1>
+          <h1 className="text-lg font-bold text-[#1A1A1A]">Chapter.Admin Dashboard</h1>
           <div className="flex items-center space-x-4">
             <button className="relative p-2 text-[#a09c92] hover:text-[#C8861A] transition-colors rounded-full hover:bg-white">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
