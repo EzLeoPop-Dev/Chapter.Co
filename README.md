@@ -652,62 +652,72 @@
 ```mermaid
 flowchart LR
     %% จัดกลุ่ม Actors ให้อยู่ด้านซ้ายในระนาบเดียวกัน
-    Cust["👤 Customer"]
-    Staff["👤 Staff"]
-    Admin["👤 Administrator"]
+    Cust["👤 ลูกค้า (Customer)"]
+    Staff["👤 พนักงาน (Staff)"]
+    Admin["👤 ผู้ดูแลระบบ (Admin)"]
+    
     %% ความสัมพันธ์สืบทอดสิทธิ์ (Admin ทำหน้าที่แทน Staff ได้)
     Admin -. "<<inherits>>" .-> Staff
+    
     subgraph "Chapter.Co System"
         
+        %% แยก Use Case เพื่อจัดการสิทธิ์ตามที่คุณต้องการ
+        UC_Register(["สมัครสมาชิก"])
+        UC_Login(["เข้าสู่ระบบ"])
+        
         %% Customer Use Cases
-        UC_Auth(["Register / Login"])
-        UC_Profile(["Manage Profile & Address"])
-        UC_Search(["Search & View Books"])
-        UC_Preview(["Preview E-book Sample"])
-        UC_Cart(["Manage Cart / Wishlist"])
-        UC_Order(["Place Order"])
-        UC_Pay(["Make Payment"])
-        UC_Track(["Track Order"])
-        UC_Read(["Read/Download E-book"])
-        UC_Review(["Review & Rate"])
-        UC_Support(["Contact Support"])
+        UC_Profile(["จัดการข้อมูลส่วนตัวและที่อยู่"])
+        UC_Search(["ค้นหาและดูรายละเอียดหนังสือ"])
+        UC_Preview(["ทดลองอ่านตัวอย่าง E-book"])
+        UC_Cart(["จัดการตะกร้าสินค้าและ Wishlist"])
+        UC_Order(["สั่งซื้อสินค้า"])
+        UC_Pay(["ชำระเงิน"])
+        UC_Track(["ติดตามสถานะคำสั่งซื้อ"])
+        UC_Read(["อ่าน / ดาวน์โหลด E-book"])
+        UC_Review(["รีวิวและให้คะแนนหนังสือ"])
+        UC_Support(["ติดต่อฝ่ายบริการลูกค้า"])
+        
         %% Staff Use Cases
-        UC_Staff_Order(["Manage Orders & Shipping"])
-        UC_Staff_Pay(["Verify Payment (Manual)"])
-        UC_Staff_Inv(["Manage Inventory & E-book"])
-        UC_Staff_Support(["Provide Customer Support"])
+        UC_Staff_Order(["จัดการคำสั่งซื้อและการจัดส่ง"])
+        UC_Staff_Pay(["ตรวจสอบการชำระเงิน (Manual)"])
+        UC_Staff_Inv(["จัดการคลังสินค้าและอัปโหลด E-book"])
+        UC_Staff_Support(["ให้บริการลูกค้า (ตอบแชท/ปัญหา)"])
         
         %% Admin Use Cases
-        UC_Admin_Prod(["Manage Products & Categories"])
-        UC_Admin_Users(["Manage Staff & Roles"])
-        UC_Admin_Promo(["Manage Promos & Banners"])
-        UC_Admin_Report(["View Dashboard & Reports"])
-        UC_Admin_Config(["Configure Automation System"])
+        UC_Admin_Prod(["จัดการข้อมูลสินค้าและหมวดหมู่"])
+        UC_Admin_Users(["จัดการพนักงานและสิทธิ์ใช้งาน"])
+        UC_Admin_Promo(["จัดการโปรโมชั่นและแบนเนอร์"])
+        UC_Admin_Report(["ดูแดชบอร์ดและรายงานยอดขาย"])
     end
-    %% เส้นความสัมพันธ์ของ Customer
-    Cust --- UC_Auth
+
+    %% เส้นความสัมพันธ์ของ Customer (ทำได้ทั้งคู่)
+    Cust --- UC_Register
+    Cust --- UC_Login
+    
     Cust --- UC_Profile
     Cust --- UC_Search
-    UC_Search -. "<<'extend'>>" .-> UC_Preview
+    UC_Preview -. "<<'extend'>>" .-> UC_Search
     Cust --- UC_Cart
     Cust --- UC_Order
-    Cust --- UC_Pay
+    UC_Order -. "<<'include'>>" .-> UC_Pay
     Cust --- UC_Track
     Cust --- UC_Read
     Cust --- UC_Review
     Cust --- UC_Support
-    %% เส้นความสัมพันธ์ของ Staff
-    Staff --- UC_Auth
+
+    %% เส้นความสัมพันธ์ของ Staff (ล็อกอินได้อย่างเดียว ไม่ต้องสมัคร)
+    Staff --- UC_Login
+    
     Staff --- UC_Staff_Order
     Staff --- UC_Staff_Pay
     Staff --- UC_Staff_Inv
     Staff --- UC_Staff_Support
+
     %% เส้นความสัมพันธ์ของ Admin
     Admin --- UC_Admin_Prod
     Admin --- UC_Admin_Users
     Admin --- UC_Admin_Promo
     Admin --- UC_Admin_Report
-    Admin --- UC_Admin_Config
 ```
 
 ## Sequence Diagram
