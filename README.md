@@ -220,8 +220,8 @@
 |---|---|---|---|
 | **1. Planning & Analysis**<br>(การวางแผนและวิเคราะห์) | ศึกษาปัญหา, วิเคราะห์คู่แข่ง, เก็บข้อมูลผู้ใช้งาน, กำหนดขอบเขตโครงการ, วิเคราะห์ Functional/Non-functional Requirements, จัดทำแบบจำลองระบบ | สัปดาห์ที่ 1 | เอกสาร Project Scope, System Requirement Specification (SRS), Use Case/Activity/ER Diagram |
 | **2. System Design**<br>(การออกแบบระบบ) | ออกแบบสถาปัตยกรรมระบบ, ออกแบบฐานข้อมูล, ออกแบบ UX/UI ด้วย Figma, จัดทำ Prototype | สัปดาห์ที่ 2 - 3 | Wireframe, High-Fidelity Mockup, Database Schema, Interactive Prototype |
-| **3. Development**<br>(การพัฒนาระบบ) | พัฒนา Frontend, Backend, Database, และ API ตามที่ออกแบบไว้ พร้อมบริหารจัดการเวอร์ชันด้วย Git/GitHub | สัปดาห์ที่ 4 - 5 | ระบบเวอร์ชันพัฒนา (Development Build) ที่พร้อมทดสอบ |
-| **4. Testing & Deployment**<br>(การทดสอบและติดตั้งระบบ) | ทดสอบระบบด้วย User Acceptance Testing (UAT) แบบ Manual Testing, แก้ไขข้อผิดพลาด, ติดตั้งระบบบนสภาพแวดล้อมจำลอง, ทดสอบหลังติดตั้ง | สัปดาห์ที่ 6 - 7 | ระบบที่ผ่านการทดสอบ UAT และพร้อมใช้งานจริง |
+| **3. Development**<br>(การพัฒนาระบบ) | พัฒนา Frontend, Backend, Database, และ API ตามที่ออกแบบไว้ พร้อมบริหารจัดการเวอร์ชันด้วย Git/GitHub | สัปดาห์ที่ 4 - 6 | ระบบเวอร์ชันพัฒนา (Development Build) ที่พร้อมทดสอบ |
+| **4. Testing & Deployment**<br>(การทดสอบและติดตั้งระบบ) | ทดสอบระบบด้วย User Acceptance Testing (UAT) แบบ Manual Testing, แก้ไขข้อผิดพลาด, ติดตั้งระบบบนสภาพแวดล้อมจำลอง, ทดสอบหลังติดตั้ง | สัปดาห์ที่ 7 | ระบบที่ผ่านการทดสอบ UAT และพร้อมใช้งานจริง |
 
 > **หมายเหตุ:** ระยะเวลาข้างต้นเป็นการประมาณการเบื้องต้น อาจมีการปรับเปลี่ยนตามความเหมาะสมของทรัพยากรและความซับซ้อนของงานจริง
 
