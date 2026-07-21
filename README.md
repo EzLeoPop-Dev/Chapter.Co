@@ -835,37 +835,33 @@ sequenceDiagram
 
 ```mermaid
 classDiagram
-    %% ============ Users ============
+    %% ============ Users & Roles ============
     class User {
-        +int userId
-        +String username
-        +String password
+        +String id
+        +String name
         +String email
+        +String passwordHash
+        +String phone
+        +String profileImage
+        +DateTime createdAt
         +register()
         +login()
         +logout()
     }
 
     class Customer {
-        +String address
-        +String phone
         +manageProfile()
         +searchBooks()
-        +readSample()
         +addToWishlist()
-        +downloadEBook()
+        +checkoutCart()
+        +readEBook()
         +contactSupport()
     }
 
     class Staff {
-        +String department
         +verifyPayment()
         +updateOrderStatus()
-        +updateInventory()
-        +printShippingLabel()
-        +uploadEBook()
         +manageCustomerRequests()
-        +monitorAutomation()
     }
 
     class Administrator {
@@ -873,11 +869,6 @@ classDiagram
         +manageCategories()
         +manageAllOrders()
         +managePromotions()
-        +manageCoupons()
-        +manageBanners()
-        +manageStaff()
-        +configureAutomation()
-        +monitorAutomation()
         +viewDashboard()
     }
 
@@ -885,218 +876,164 @@ classDiagram
     User <|-- Staff
     User <|-- Administrator
 
-    %% ============ Books ============
+    class Address {
+        +int id
+        +String name
+        +String phone
+        +String streetAddress
+        +String city
+        +String zipCode
+    }
+
+    Customer "1" *-- "0..*" Address : มีที่อยู่
+
+    %% ============ Books & Catalog ============
     class Book {
-        +int bookId
+        +int id
         +String title
         +String author
-        +String isbn
-        +float price
-        +String description
-        +String previewContent
+        +Decimal price
+        +String sampleData
         +getDetails()
-        +getSample()
     }
 
     class PhysicalBook {
-        +float weight
+        +int stock
+        +String stockStatus
+        +checkStock()
     }
 
     class EBook {
-        +String fileUrl
-        +String format
-        +float fileSize
+        +String ebookFile
         +downloadFile()
+        +readOnline()
     }
 
     Book <|-- PhysicalBook
     Book <|-- EBook
 
     class Category {
-        +int categoryId
+        +int id
         +String name
-        +String description
-        +getBooks()
     }
 
-    %% ============ Search ============
-    class SearchService {
-        +searchByKeyword(keyword)
-        +searchByCategory(categoryId)
-        +filterByPrice(min, max)
-        +getRecommendations()
+    class Publisher {
+        +int id
+        +String name
     }
 
-    Customer ..> SearchService : uses
-    SearchService ..> Book : queries
+    Book "0..*" --> "0..1" Category : อยู่ในหมวดหมู่
+    Book "0..*" --> "0..1" Publisher : ตีพิมพ์โดย
 
-    %% ============ Inventory ============
-    class Inventory {
-        +int inventoryId
-        +int quantityOnHand
-        +int reorderLevel
-        +String warehouseLocation
-        +checkStock()
-        +adjustStock()
-    }
-
-    PhysicalBook "1" --> "1" Inventory : trackedBy
-    Staff "1" --> "0..*" Inventory : checksAndUpdates
-
-    %% ============ Cart / Wishlist / EBook Library ============
-    class Wishlist {
-        +int wishlistId
-        +addBook()
-        +removeBook()
-    }
-
-    class Cart {
-        +int cartId
-        +float totalAmount
-        +clearCart()
-    }
-
+    %% ============ Cart, Wishlist & E-Book Library ============
     class CartItem {
-        +int cartItemId
+        +int id
         +int quantity
-        +updateQuantity()
     }
 
-    class EBookLibrary {
-        +int libraryId
-        +addToLibrary()
-        +getOwnedBooks()
+    class WishlistItem {
+        +int id
     }
 
-    Customer "1" --> "1" Cart : owns
-    Cart "1" *-- "0..*" CartItem : contains
-    CartItem "0..*" --> "1" Book : refersTo
+    class UserLibrary {
+        +int id
+        +DateTime purchaseAt
+    }
+    
+    class EbookProgress {
+        +int id
+        +int progressPercent
+        +int currentChapter
+    }
 
-    Customer "1" --> "1" Wishlist : owns
-    Wishlist "1" o-- "0..*" Book : includes
+    Customer "1" *-- "0..*" CartItem : มีสินค้าในตะกร้า
+    CartItem "0..*" --> "1" Book : อ้างอิงถึงหนังสือ
 
-    Customer "1" --> "1" EBookLibrary : owns
-    EBookLibrary "1" o-- "0..*" EBook : contains
+    Customer "1" *-- "0..*" WishlistItem : มีสินค้าที่อยากได้
+    WishlistItem "0..*" --> "1" Book : ประกอบด้วยหนังสือ
 
-    %% ============ Order / Payment / Shipping ============
+    Customer "1" *-- "0..*" UserLibrary : เป็นเจ้าของคลังหนังสือ
+    UserLibrary "0..*" --> "1" EBook : ให้สิทธิ์เข้าถึง E-Book
+
+    Customer "1" *-- "0..*" EbookProgress : บันทึกการอ่าน
+    EbookProgress "0..*" --> "1" EBook : อ้างอิงถึง E-Book
+
+    %% ============ Order & Transactions ============
     class Order {
-        +int orderId
-        +Date orderDate
-        +float totalAmount
+        +String id
         +String status
+        +String paymentMethod
+        +String shippingMethod
+        +Decimal totalAmount
+        +String slipUrl
+        +String trackingNumber
+        +DateTime createdAt
         +calculateTotal()
         +updateStatus()
     }
 
-    class OrderDetail {
-        +int orderDetailId
+    class OrderItem {
+        +int id
         +int quantity
-        +float unitPrice
-        +getSubtotal()
+        +Decimal unitPrice
+        +String bookTitle
     }
 
-    class Payment {
-        +int paymentId
-        +Date paymentDate
-        +float amount
-        +String method
-        +String status
-        +processPayment()
-    }
+    Customer "1" --> "0..*" Order : สั่งซื้อ
+    Order "1" *-- "1..*" OrderItem : ประกอบด้วยรายการ
+    OrderItem "0..*" --> "1" Book : อ้างอิงถึงหนังสือ
+    Staff "1" --> "0..*" Order : จัดการคำสั่งซื้อ
+    Administrator "1" --> "0..*" Order : ดูแลระบบคำสั่งซื้อ
 
-    class Shipping {
-        +int shippingId
-        +String trackingNumber
-        +String carrier
-        +Date shippedDate
-        +String status
-        +generateTracking()
-        +updateShippingStatus()
-    }
-
-    Customer "1" --> "0..*" Order : places
-    Order "1" *-- "1..*" OrderDetail : contains
-    OrderDetail "0..*" --> "1" Book : refersTo
-    Order "1" --> "1" Payment : has
-    Order "1" --> "0..1" Shipping : generates
-    Staff "1" --> "0..*" Order : processes
-    Staff "1" --> "0..*" Shipping : manages
-    Administrator "1" --> "0..*" Order : manages
-
-    %% ============ Review ============
-    class Review {
-        +int reviewId
-        +int rating
-        +String comment
-        +Date reviewDate
-        +submitReview()
-    }
-
-    Customer "1" --> "0..*" Review : writes
-    Book "1" --> "0..*" Review : receives
-    Category "0..*" --> "0..*" Book : categorizes
-
-    %% ============ Promotion / Coupon ============
+    %% ============ Promotion & Coupons ============
     class Promotion {
-        +int promotionId
+        +int id
         +String name
-        +String description
-        +float discountValue
-        +Date startDate
-        +Date endDate
-        +boolean isActive
+        +String code
+        +String discountType
+        +Decimal value
+        +String status
         +applyPromotion()
     }
 
-    class Coupon {
-        +int couponId
-        +String code
-        +float discountValue
-        +Date validUntil
-        +int usageLimit
-        +boolean isActive
-        +applyDiscount()
+    class UserCoupon {
+        +int id
+        +boolean isUsed
     }
 
-    Order "0..*" --> "0..1" Coupon : uses
-    Promotion "0..*" --> "0..*" Book : promotes
+    class OrderCoupon {
+        +int id
+        +String couponCode
+        +Decimal discountAmt
+    }
 
-    %% ============ Support ============
-    class SupportTicket {
-        +int ticketId
-        +String issueType
+    Promotion "1" *-- "0..*" UserCoupon : แจกจ่าย
+    Customer "1" *-- "0..*" UserCoupon : เก็บโค้ดส่วนลด
+    Order "1" *-- "0..*" OrderCoupon : ใช้งานโค้ดส่วนลด
+
+    %% ============ Reviews & Support ============
+    class Review {
+        +int id
+        +int rating
+        +String comment
+        +String status
+        +submitReview()
+    }
+
+    class Ticket {
+        +String id
+        +String subject
         +String message
         +String status
+        +String adminNote
         +createTicket()
         +resolveTicket()
     }
 
-    Customer "1" --> "0..*" SupportTicket : creates
-    Staff "1" --> "0..*" SupportTicket : handles
+    Customer "1" --> "0..*" Review : เขียนรีวิว
+    Book "1" --> "0..*" Review : ได้รับรีวิว
 
-    %% ============ Automation / Notification ============
-    class AutomationLog {
-        +int logId
-        +String taskType
-        +Date executedAt
-        +String status
-        +String details
-        +executeTask()
-        +logResult()
-    }
-
-    class Notification {
-        +int notificationId
-        +String channel
-        +String message
-        +Date sentDate
-        +String status
-        +sendNotification()
-    }
-
-    Order "1" --> "0..*" AutomationLog : triggers
-    Staff "1" --> "0..*" AutomationLog : monitors
-    Administrator "1" --> "0..*" AutomationLog : configures
-    AutomationLog "1" --> "0..*" Notification : generates
-    Customer "1" --> "0..*" Notification : receives
+    Customer "1" --> "0..*" Ticket : เปิดตั๋วปัญหา
+    Staff "1" --> "0..*" Ticket : จัดการปัญหา
+    Order "0..1" <-- "0..*" Ticket : เกี่ยวข้องกับคำสั่งซื้อ
 ```
