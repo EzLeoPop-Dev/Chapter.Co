@@ -364,9 +364,12 @@
 
 สร้างเอกสารประกอบการวิเคราะห์ เช่น
 
+- Persona Design
 - Use Case Diagram
 - Sequence Diagram
 - Class Diagram
+- Wireframe / Prototype
+- Data Schema
 - System Architecture
 
 ผลลัพธ์ของขั้นตอนนี้คือเอกสาร **System Requirement Specification (SRS)**
