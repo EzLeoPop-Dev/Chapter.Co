@@ -1001,3 +1001,66 @@ classDiagram
     Staff "1" --> "0..*" Ticket : จัดการปัญหา
     Order "0..1" <-- "0..*" Ticket : เกี่ยวข้องกับคำสั่งซื้อ
 ```
+## System Architecture
+```mermaid
+flowchart TB
+    %% Styling Classes
+    classDef client fill:#e0e7ff,stroke:#4338ca,stroke-width:2px,color:#1e1b4b;
+    classDef frontend fill:#dcfce7,stroke:#15803d,stroke-width:2px,color:#14532d;
+    classDef backend fill:#fef3c7,stroke:#b45309,stroke-width:2px,color:#78350f;
+    classDef db fill:#fee2e2,stroke:#b91c1c,stroke-width:2px,color:#7f1d1d;
+    classDef storage fill:#cffafe,stroke:#0e7490,stroke-width:2px,color:#164e63;
+    classDef auth fill:#f3e8ff,stroke:#7e22ce,stroke-width:2px,color:#581c87;
+    classDef package fill:#f4f4f5,stroke:#52525b,stroke-width:1px,stroke-dasharray: 5 5,color:#27272a;
+
+    %% 1. Client Layer
+    subgraph ClientLayer ["1. Client Layer (ส่วนของผู้ใช้งาน)"]
+        direction LR
+        Cust["Customer<br><i>(Web Browser)</i>"]:::client
+        Staff["Staff<br><i>(Web Browser)</i>"]:::client
+        Admin["Admin<br><i>(Web Browser)</i>"]:::client
+    end
+
+    %% 2. Application Platform Layer (Next.js)
+    subgraph NextApp ["2. Next.js App Router Platform"]
+        direction TB
+        FE["Next.js Frontend<br><i>(Client Components, Server Components, Pages)</i>"]:::frontend
+        BE["Next.js Backend<br><i>(Route Handlers /api/*, Serverless Functions)</i>"]:::backend
+        SupaClient["Supabase Client<br><i>(@supabase/supabase-js)</i>"]:::package
+    end
+
+    %% 3. Authentication & ORM Layer
+    subgraph AuthDataLayer ["3. Security & Data Access Layer"]
+        Auth["NextAuth.js<br><i>(Session, JWT & Role-Based Access)</i>"]:::auth
+        ORM["Prisma ORM<br><i>(Query Builder & Database Schema)</i>"]:::backend
+    end
+
+    %% 4. Persistence & Storage Layer
+    subgraph PersistenceLayer ["4. Data & Cloud Storage"]
+        DB[("PostgreSQL Database<br><i>(Primary Relational Data)</i>")]:::db
+        Storage[("Supabase Storage<br><i>(E-Books, Book Covers, Review Images)</i>")]:::storage
+    end
+
+    %% Data Flows (Client to App)
+    Cust -->|"HTTP / HTTPS"| FE
+    Staff -->|"HTTP / HTTPS"| FE
+    Admin -->|"HTTP / HTTPS"| FE
+    
+    Cust -->|"API Requests (Fetch)"| BE
+    Staff -->|"API Requests (Fetch)"| BE
+    Admin -->|"API Requests (Fetch)"| BE
+    
+    %% Internal App Flows
+    FE -->|"Server Actions / SSR"| BE
+    FE -->|"Init Client"| SupaClient
+    
+    %% Storage Flows
+    SupaClient -->|"Direct Upload (e.g. Review Images)"| Storage
+    FE -.->|"Direct Media Fetch (img src)"| Storage
+    BE -->|"Server-side Upload / Fetch"| Storage
+
+    %% Auth & DB Flows
+    BE -->|"Session & Role Check"| Auth
+    BE -->|"Read / Write Data"| ORM
+    ORM -->|"TCP / Connection Pooling"| DB
+```
