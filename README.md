@@ -1064,3 +1064,425 @@ flowchart TB
     BE -->|"Read / Write Data"| ORM
     ORM -->|"TCP / Connection Pooling"| DB
 ```
+
+
+## JSON Schema
+
+```json
+{
+  "$schema": "[http://json-schema.org/draft-07/schema#](http://json-schema.org/draft-07/schema#)",
+  "title": "BookstoreDatabaseSchema",
+  "description": "JSON Schema derived from Prisma Schema for Bookstore System",
+  "type": "object",
+  "definitions": {
+    "UserRole": {
+      "type": "string",
+      "enum": ["CUSTOMER", "STAFF", "ADMIN"]
+    },
+    "UserStatus": {
+      "type": "string",
+      "enum": ["Active", "Banned"]
+    },
+    "BookType": {
+      "type": "string",
+      "enum": ["Hardcover", "EBook", "Manga", "Pack"]
+    },
+    "StockStatus": {
+      "type": "string",
+      "enum": ["InStock", "LowStock", "OutOfStock"]
+    },
+    "DiscountType": {
+      "type": "string",
+      "enum": ["percent", "fixed", "freeship"]
+    },
+    "PromotionStatus": {
+      "type": "string",
+      "enum": ["Active", "Expired", "Disabled"]
+    },
+    "OrderStatus": {
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "VERIFYING",
+        "PREPARING",
+        "SHIPPING",
+        "COMPLETED",
+        "CANCELLED",
+        "REFUNDED"
+      ]
+    },
+    "PaymentMethod": {
+      "type": "string",
+      "enum": ["promptpay", "credit_card", "bank_transfer", "cod"]
+    },
+    "ShippingMethod": {
+      "type": "string",
+      "enum": ["standard", "express", "digital"]
+    },
+    "TicketStatus": {
+      "type": "string",
+      "enum": ["OPEN", "PENDING", "CLOSED"]
+    },
+    "POStatus": {
+      "type": "string",
+      "enum": ["Pending", "Partial", "Completed", "Cancelled"]
+    },
+    "StockMovementType": {
+      "type": "string",
+      "enum": ["IN", "OUT", "DAMAGED", "ADJUST"]
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "passwordHash": { "type": "string" },
+        "role": { "$ref": "#/definitions/UserRole", "default": "CUSTOMER" },
+        "status": { "$ref": "#/definitions/UserStatus", "default": "Active" },
+        "phone": { "type": ["string", "null"] },
+        "birthdate": { "type": ["string", "null"], "format": "date-time" },
+        "profileImage": { "type": ["string", "null"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "email", "passwordHash", "createdAt", "updatedAt"]
+    },
+    "Address": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "label": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "streetAddress": { "type": "string" },
+        "city": { "type": "string" },
+        "zipCode": { "type": "string" },
+        "isDefault": { "type": "boolean", "default": false },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "id",
+        "label",
+        "name",
+        "phone",
+        "streetAddress",
+        "city",
+        "zipCode",
+        "userId",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Publisher": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "createdAt", "updatedAt"]
+    },
+    "Category": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "createdAt", "updatedAt"]
+    },
+    "Book": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "title": { "type": "string" },
+        "author": { "type": "string" },
+        "description": { "type": ["string", "null"] },
+        "isbn": { "type": ["string", "null"] },
+        "pages": { "type": ["integer", "null"] },
+        "publishDate": { "type": ["string", "null"] },
+        "bookType": { "$ref": "#/definitions/BookType", "default": "Hardcover" },
+        "price": { "type": "number", "minimum": 0 },
+        "stock": { "type": "integer", "default": 0 },
+        "stockStatus": { "$ref": "#/definitions/StockStatus", "default": "InStock" },
+        "image": { "type": ["string", "null"] },
+        "rating": { "type": ["number", "null"], "minimum": 0, "maximum": 5 },
+        "reviewCount": { "type": "integer", "default": 0 },
+        "sampleData": { "type": ["object", "null"] },
+        "ebookFile": { "type": ["string", "null"] },
+        "sampleLimit": { "type": ["integer", "null"] },
+        "publisherId": { "type": ["integer", "null"] },
+        "categoryId": { "type": ["integer", "null"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "id",
+        "title",
+        "author",
+        "price",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Review": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "rating": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "comment": { "type": "string" },
+        "userId": { "type": ["string", "null"] },
+        "bookId": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "rating", "comment", "bookId", "createdAt", "updatedAt"]
+    },
+    "Promotion": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "discountType": { "$ref": "#/definitions/DiscountType" },
+        "value": { "type": "number" },
+        "status": { "$ref": "#/definitions/PromotionStatus", "default": "Active" },
+        "minPurchase": { "type": "number", "default": 0 },
+        "usageLimit": { "type": ["integer", "null"] },
+        "usedCount": { "type": "integer", "default": 0 },
+        "endDate": { "type": ["string", "null"], "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "id",
+        "name",
+        "code",
+        "discountType",
+        "value",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "UserCoupon": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "userId": { "type": "string" },
+        "promotionId": { "type": "integer" },
+        "isUsed": { "type": "boolean", "default": false },
+        "collectedAt": { "type": "string", "format": "date-time" },
+        "usedAt": { "type": ["string", "null"], "format": "date-time" }
+      },
+      "required": ["id", "userId", "promotionId", "collectedAt"]
+    },
+    "CartItem": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "quantity": { "type": "integer", "default": 1 },
+        "userId": { "type": "string" },
+        "bookId": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "quantity", "userId", "bookId", "createdAt", "updatedAt"]
+    },
+    "WishlistItem": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "userId": { "type": "string" },
+        "bookId": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "bookId", "createdAt"]
+    },
+    "Order": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "status": { "$ref": "#/definitions/OrderStatus", "default": "PENDING" },
+        "shippingMethod": { "$ref": "#/definitions/ShippingMethod", "default": "standard" },
+        "paymentMethod": { "$ref": "#/definitions/PaymentMethod", "default": "promptpay" },
+        "recipientName": { "type": "string" },
+        "recipientPhone": { "type": ["string", "null"] },
+        "shippingAddress": { "type": "string" },
+        "subtotal": { "type": "number" },
+        "shippingFee": { "type": "number", "default": 0 },
+        "discountAmount": { "type": "number", "default": 0 },
+        "taxAmount": { "type": "number", "default": 0 },
+        "totalAmount": { "type": "number" },
+        "slipUrl": { "type": ["string", "null"] },
+        "paymentTime": { "type": ["string", "null"], "format": "date-time" },
+        "trackingNumber": { "type": ["string", "null"] },
+        "userId": { "type": ["string", "null"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "id",
+        "recipientName",
+        "shippingAddress",
+        "subtotal",
+        "totalAmount",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "OrderItem": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "quantity": { "type": "integer" },
+        "unitPrice": { "type": "number" },
+        "bookTitle": { "type": "string" },
+        "bookImage": { "type": ["string", "null"] },
+        "bookType": { "$ref": "#/definitions/BookType" },
+        "orderId": { "type": "string" },
+        "bookId": { "type": ["integer", "null"] }
+      },
+      "required": [
+        "id",
+        "quantity",
+        "unitPrice",
+        "bookTitle",
+        "bookType",
+        "orderId"
+      ]
+    },
+    "OrderCoupon": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "couponCode": { "type": "string" },
+        "discountAmt": { "type": "number" },
+        "orderId": { "type": "string" },
+        "promotionId": { "type": ["integer", "null"] }
+      },
+      "required": ["id", "couponCode", "discountAmt", "orderId"]
+    },
+    "UserLibrary": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "purchaseAt": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" },
+        "bookId": { "type": "integer" }
+      },
+      "required": ["id", "purchaseAt", "userId", "bookId"]
+    },
+    "EbookProgress": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "progressPercent": { "type": "integer", "minimum": 0, "maximum": 100, "default": 0 },
+        "currentChapter": { "type": ["integer", "null"] },
+        "lastReadAt": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" },
+        "bookId": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "bookId", "createdAt", "updatedAt"]
+    },
+    "Ticket": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "subject": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "$ref": "#/definitions/TicketStatus", "default": "OPEN" },
+        "customerName": { "type": ["string", "null"] },
+        "adminNote": { "type": ["string", "null"] },
+        "resolvedAt": { "type": ["string", "null"], "format": "date-time" },
+        "userId": { "type": ["string", "null"] },
+        "orderId": { "type": ["string", "null"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "subject", "message", "createdAt", "updatedAt"]
+    },
+    "ChatSession": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "status": { "$ref": "#/definitions/TicketStatus", "default": "OPEN" },
+        "userId": { "type": ["string", "null"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "createdAt", "updatedAt"]
+    },
+    "ChatMessage": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "sessionId": { "type": "string" },
+        "senderId": { "type": ["string", "null"] },
+        "senderRole": { "type": "string" },
+        "message": { "type": "string" },
+        "isRead": { "type": "boolean", "default": false },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "sessionId", "senderRole", "message", "createdAt"]
+    },
+    "BookPackItem": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "quantity": { "type": "integer", "default": 1 },
+        "packId": { "type": "integer" },
+        "bookId": { "type": "integer" }
+      },
+      "required": ["id", "packId", "bookId"]
+    },
+    "PurchaseOrder": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "supplier": { "type": "string" },
+        "status": { "$ref": "#/definitions/POStatus", "default": "Pending" },
+        "expectedDate": { "type": ["string", "null"], "format": "date-time" },
+        "createdBy": { "type": "string" },
+        "note": { "type": ["string", "null"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "supplier", "createdBy", "createdAt", "updatedAt"]
+    },
+    "PurchaseOrderItem": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "ordered": { "type": "integer" },
+        "received": { "type": "integer", "default": 0 },
+        "unitCost": { "type": "number" },
+        "purchaseOrderId": { "type": "string" },
+        "bookId": { "type": "integer" }
+      },
+      "required": ["id", "ordered", "unitCost", "purchaseOrderId", "bookId"]
+    },
+    "StockMovement": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "type": { "$ref": "#/definitions/StockMovementType" },
+        "quantity": { "type": "integer" },
+        "reference": { "type": ["string", "null"] },
+        "performedBy": { "type": "string" },
+        "note": { "type": ["string", "null"] },
+        "balanceAfter": { "type": "integer", "default": 0 },
+        "bookId": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "type", "quantity", "performedBy", "bookId", "createdAt"]
+    }
+  }
+}
+```
