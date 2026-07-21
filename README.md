@@ -643,7 +643,7 @@ flowchart LR
     %% ความสัมพันธ์สืบทอดสิทธิ์ (Admin ทำหน้าที่แทน Staff ได้)
     Admin -. "<<inherits>>" .-> Staff
     
-    subgraph "Chapter.Co System"
+    subgraph "Cheapter.Co System"
         
         %% แยก Use Case เพื่อจัดการสิทธิ์ตามที่คุณต้องการ
         UC_Register(["สมัครสมาชิก"])
@@ -659,22 +659,22 @@ flowchart LR
         UC_Track(["ติดตามสถานะคำสั่งซื้อ"])
         UC_Read(["อ่าน / ดาวน์โหลด E-book"])
         UC_Review(["รีวิวและให้คะแนนหนังสือ"])
-        UC_Support(["ติดต่อฝ่ายบริการลูกค้า"])
+        UC_Support(["เปิดตั๋วแจ้งปัญหา (Support Ticket)"])
         
         %% Staff Use Cases
         UC_Staff_Order(["จัดการคำสั่งซื้อและการจัดส่ง"])
         UC_Staff_Pay(["ตรวจสอบการชำระเงิน (Manual)"])
         UC_Staff_Inv(["จัดการคลังสินค้าและอัปโหลด E-book"])
-        UC_Staff_Support(["ให้บริการลูกค้า (ตอบแชท/ปัญหา)"])
+        UC_Staff_Support(["ให้บริการลูกค้า (ตอบปัญหา Ticket)"])
         
         %% Admin Use Cases
-        UC_Admin_Prod(["จัดการข้อมูลสินค้าและหมวดหมู่"])
+        UC_Admin_Prod(["จัดการข้อมูลสินค้า หมวดหมู่ สำนักพิมพ์"])
         UC_Admin_Users(["จัดการพนักงานและสิทธิ์ใช้งาน"])
-        UC_Admin_Promo(["จัดการโปรโมชั่นและแบนเนอร์"])
+        UC_Admin_Promo(["จัดการโปรโมชั่น โค้ดส่วนลด"])
         UC_Admin_Report(["ดูแดชบอร์ดและรายงานยอดขาย"])
     end
 
-    %% เส้นความสัมพันธ์ของ Customer (ทำได้ทั้งคู่)
+    %% เส้นความสัมพันธ์ของ Customer
     Cust --- UC_Register
     Cust --- UC_Login
     
