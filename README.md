@@ -367,6 +367,7 @@
 - Use Case Diagram
 - Sequence Diagram
 - Class Diagram
+- System Architecture
 
 ผลลัพธ์ของขั้นตอนนี้คือเอกสาร **System Requirement Specification (SRS)**
 
