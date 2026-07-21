@@ -717,117 +717,92 @@ flowchart LR
     "signalColor": "#374151",
     "noteTextColor": "#1a1a2e",
     "noteBkgColor": "#fef3c7",
-    "noteBorderColor": "#d97706",
-    "labelTextColor": "#1a1a2e",
-    "loopTextColor": "#1a1a2e",
-    "activationBorderColor": "#4338ca",
-    "sequenceNumberColor": "#1a1a2e"
+    "noteBorderColor": "#d97706"
   }
 }}%%
 sequenceDiagram
+    actor Admin
     actor Customer
+    actor Staff
+    
     participant UI as Web Application
-    participant Auth as Authentication Service
     participant Book as Book Service
-    participant Cart as Cart Service
     participant Order as Order Service
     participant Payment as Payment Service
     participant Inventory as Inventory Service
     participant Shipping as Shipping Service
     participant Notify as Notification Service
-    participant EBook as EBook Service
     participant Database as Database
 
-    rect rgb(199, 210, 254)
-    note over Customer,Database: Login
-    Customer->>UI: Open Login Page
-    UI->>Auth: login(email,password)
-    Auth->>Database: Check user credentials
-    Database-->>Auth: User Found
-    Auth-->>UI: Login Success
-    UI-->>Customer: Show Home Page
+    %% ==========================================
+    %% 1. ADMIN FLOW: จัดการสินค้า
+    %% ==========================================
+    rect rgb(243, 232, 255)
+    note over Admin,Database: 1. Admin Flow: เพิ่มสินค้าและโปรโมชั่น
+    Admin->>UI: เพิ่มหนังสือใหม่เข้าสู่ระบบ
+    UI->>Book: createBook(bookData)
+    Book->>Database: Insert Book Data
+    Database-->>Book: Success
+    Book->>Inventory: addStock()
+    Inventory->>Database: Update Stock
+    Inventory-->>UI: Update Complete
+    UI-->>Admin: แสดงผลการเพิ่มสินค้าสำเร็จ
     end
 
-    rect rgb(187, 247, 208)
-    note over Customer,Database: Search Book
-    Customer->>UI: Search for a book
-    UI->>Book: search(keyword)
-    Book->>Database: Query Books
-    Database-->>Book: Book List
-    Book-->>UI: Show book list
-    end
-
-    rect rgb(216, 180, 254)
-    note over Customer,Database: View Detail
-    Customer->>UI: Select a book
-    UI->>Book: getBookDetail(bookId)
-    Book->>Database: Query Detail
-    Database-->>Book: Book Detail
-    Book-->>UI: Show details
-    end
-
-    rect rgb(254, 202, 154)
-    note over Customer,Database: Preview Sample
-    Customer->>UI: Preview book
-    UI->>Book: getPreview()
-    Book->>Database: Read Sample
-    Database-->>Book: Sample File
-    Book-->>UI: Display Sample
-    end
-
-    rect rgb(165, 243, 252)
-    note over Customer,Database: Add Cart
-    Customer->>UI: Add to cart
-    UI->>Cart: addItem(book)
-    Cart->>Database: Save Cart
-    Database-->>Cart: Success
-    Cart-->>UI: Cart Updated
-    end
-
-    rect rgb(216, 180, 254)
-    note over Customer,Database: Checkout
-    Customer->>UI: Checkout
-    UI->>Order: createOrder()
-    Order->>Database: Save Order
-    Database-->>Order: Order ID
-    end
-
-    rect rgb(249, 168, 212)
-    note over Customer,Database: Payment
+    %% ==========================================
+    %% 2. CUSTOMER FLOW: สั่งซื้อสินค้า
+    %% ==========================================
+    rect rgb(219, 234, 254)
+    note over Customer,Database: 2. Customer Flow: ค้นหาและสั่งซื้อหนังสือ
+    Customer->>UI: ค้นหาและเพิ่มหนังสือลงตะกร้า
+    UI->>Order: createOrder(cartItems)
+    Order->>Database: Save Order (Pending)
+    
     Order->>Payment: Request Payment
-    Payment-->>Customer: Show payment options
-    Customer->>Payment: Confirm payment
-    Payment-->>Order: Payment Success
+    Payment-->>Customer: Show Payment Options
+    Customer->>Payment: Confirm Payment
+    Payment->>Database: Update Status = Paid
+    Database-->>Order: Payment Success
+    
+    Order->>Inventory: Reduce Stock (Automation)
+    Inventory->>Database: Update Stock
+    UI-->>Customer: แสดงหน้า Order Success
     end
 
-    rect rgb(187, 247, 208)
-    note over Customer,Database: Automation
-    Order->>Database: Update Status = Paid
-    Order->>Inventory: Reduce Stock
-    Inventory->>Database: Update Inventory
-    Database-->>Inventory: Success
-
-    alt Physical Book
-        Order->>Shipping: Generate Tracking
-        Shipping->>Database: Save Tracking
-        Database-->>Shipping: Success
-        Shipping-->>Order: Tracking Number
-        Order->>Notify: Send Email / LINE
-        Notify-->>Customer: Notify tracking number
-    else E-Book
-        Order->>EBook: Grant Access
-        EBook->>Database: Update Library
-        Database-->>EBook: Success
-        EBook-->>Customer: Download / Read E-Book
+    %% ==========================================
+    %% 3. STAFF FLOW: จัดการออเดอร์และการจัดส่ง
+    %% ==========================================
+    rect rgb(220, 252, 231)
+    note over Staff,Database: 3. Staff Flow: ตรวจสอบและจัดส่งสินค้า
+    Staff->>UI: เปิดดูรายการสั่งซื้อที่ชำระเงินแล้ว
+    UI->>Order: getPendingOrders()
+    Order->>Database: Query Orders
+    Database-->>UI: List of Orders
+    
+    Staff->>UI: แพ็กสินค้า & อัปเดตสถานะจัดส่ง
+    UI->>Shipping: generateTracking(orderId)
+    Shipping->>Database: Save Tracking Info
+    Database-->>Shipping: Success
+    
+    Shipping->>Order: Update Status = Shipped
+    Order->>Database: Save Status
+    
+    Shipping->>Notify: Send Email/LINE
+    Notify-->>Customer: แจ้งเตือนเลข Tracking
+    UI-->>Staff: อัปเดตสถานะเสร็จสิ้น
     end
-    end
 
-    rect rgb(254, 205, 211)
-    note over Customer,Database: Complete
-    Order->>Database: Save Completed Order
-    Database-->>Order: Success
-    Order-->>UI: Order Complete
-    UI-->>Customer: Show order success
+    %% ==========================================
+    %% 4. ADMIN FLOW: สรุปยอดขาย
+    %% ==========================================
+    rect rgb(254, 249, 195)
+    note over Admin,Database: 4. Admin Flow: ดูสรุปยอดขาย (Dashboard)
+    Admin->>UI: เปิดหน้า Dashboard
+    UI->>Order: getSalesReport()
+    Order->>Database: Aggregate Sales Data
+    Database-->>Order: Sales Report
+    Order-->>UI: Render Dashboard Charts
+    UI-->>Admin: แสดงสรุปยอดขายรายวัน
     end
 ```
 
